@@ -1,0 +1,23 @@
+Bank:
+  endpoints:
+    -	/atm:
+      atm: 
+        - atm_id
+				- stock
+				- withdraw_log
+				- errors
+	- /atm/broken returns atms with errors
+	- /atm/refil returns atms that are close on running out of stock
+	- /branch:
+		- branch:
+			- branch_id
+			- employees:
+		  	- employee_id
+		  	-	position
+		  	- present
+	- /branch/{branch_id}/managers returns list of managers
+	- /branch/directors returns director of each branch
+  db_tables:
+    - employees
+		- branch
+		- atms 
