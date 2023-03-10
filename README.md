@@ -7,7 +7,7 @@ Please let me pass this subject :))
 - /atm/broken --> atms with errors
 - /atm/refil  --> atms that are close running out of stock
 #### Branch
-- /branch --> list of branches Branch(branch_id,Employee(employee_id, position, present), opening_hours, location)
+- /branch --> list of branches Branch(branch_id, Employee(employee_id, position, present), opening_hours, location)
 - /branch/{branch_id}/manager --> list of managers in selected branch
 - /branch/director --> list of director of each branch
 - /branch/opened --> opened branches
