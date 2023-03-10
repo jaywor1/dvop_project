@@ -6,6 +6,8 @@ Please let me pass this subject :))
 - /atm --> list of atms ATM(atm_id, stock, withdraw_log, errors)
 - /atm/broken --> atms with errors
 - /atm/refil  --> atms that are close running out of stock
+- /atm/{atm_id}/log --> shows withdraw_log
+- /atm/{atm_id}/error --> shows error log
 #### Branch
 - /branch --> list of branches Branch(branch_id, Employee(employee_id, position, present), opening_hours, location)
 - /branch/{branch_id}/manager --> list of managers in selected branch
