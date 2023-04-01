@@ -26,7 +26,7 @@ Please let me pass this subject :))
     - close_hours (TIME NOT NULL)
     - address (TEXT NOT NULL)
 
-- atms (atm_id, stock, withdraw_log, errors)
+- atms
     - atm_id (SERIAL PRIMARY KEY NOT NULL)
     - stock (INT NOT NULL)
     - withdraw_log (TEXT NULL)
