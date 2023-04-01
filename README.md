@@ -9,11 +9,25 @@ Please let me pass this subject :))
 - /atm/{atm_id}/log --> shows withdraw_log
 - /atm/{atm_id}/error --> shows error log
 #### Branch
-- /branch --> list of branches Branch(branch_id, Employee(employee_id, position, present), opening_hours, location)
+- /branch --> list of branches Branch(branch_id, Employee(employe_id, position, present), opening_hours, location)
 - /branch/{branch_id}/manager --> list of managers in selected branch
 - /branch/director --> list of director of each branch
 - /branch/opened --> opened branches
 ### DB tables
-- employees --> (branch_id, employee_id, position, present)
-- branch --> (branch_id, opening_hours, location)
+- employes
+    - employee_id (SERIAL PRIMARY KEY NOT NULL)
+    - branch_id (FOREIGN KEY INT)
+    - position (TEXT NOT NULL)
+    - present (BOOLEAN NOT NULL)
+
+- branch
+    - branch_id (SERIAL PRIMARY KEY NOT NULL)
+    - open_hours (TIME NOT NULL)
+    - close_hours (TIME NOT NULL)
+    - address (TEXT NOT NULL)
+
 - atms --> (atm_id, stock, withdraw_log, errors)
+    - atm_id (SERIAL PRIMARY KEY NOT NULL)
+    - stock (INT NOT NULL)
+    - withdraw_log (TEXT NULL)
+    - error_log (TEXT NULL)
