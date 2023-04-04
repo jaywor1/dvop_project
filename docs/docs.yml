@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: Bank API
+  description: |-
+    smth
+    
+    Some useful links:
+    - [Github repo](https://github.com/jaywor1/dvop_project)
+
+  version: 1.0.0
+
+
+tags:
+  - name: atm
+    description: abc
+    
+    
+    
+paths:
+  /atm:
+    get:
+      tags:
+        - atm
+      summary: Returns all atms
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  
+  /atm/refil:
+    get:
+      tags:
+        - atm
+      summary: Returns atms that need refil
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  
+  /atm/error:
+    get:
+      tags:
+        - atm
+      summary: Returns atms with errors
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  
+  /atm/{atm_id}:
+    get:
+      tags:
+        - atm
+      summary: Select atm via id
+      parameters:
+        - name: atm_id
+          in: path
+          description: Identification of ATM
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Atm"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  
+                 
+components:
+  schemas:
+    Atms:
+      type: array
+      items:
+        type: object
+        properties:
+          atm_id:
+            type: integer
+            format: int64
+            example: 13
+          stock:
+            type: integer
+            format: int64
+            example: 20000
+          withdraw_log:
+            type: array
+            items:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  format: int64
+                  example: 500
+                user_id:
+                  type: integer
+                  format: int64
+                  example: 12
+          error_log:
+            type: string
+            example: "Windows update"
+            
+    Atm:
+      type: object
+      properties:
+        atm_id:
+          type: integer
+          format: int64
+          example: 13
+        stock:
+            type: integer
+            format: int64
+            example: 20000
+        withdraw_log:
+          type: array
+          items:
+            type: object
+            properties:
+              amount:
+                type: integer
+                format: int64
+                example: 500
+              user_id:
+                type: integer
+                format: int64
+                example: 12
+        error_log:
+          type: string
+          example: "Windows update"
