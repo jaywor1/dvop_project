@@ -30,6 +30,14 @@ INSERT INTO atms (stock)
 VALUES
     (20000),(21000),(23400),(20940),(15000),(17500);
 
+INSERT INTO atms (stock, error_log)
+VALUES
+    (20000, 'Skill issue'),(21000, 'Keyboard not working'),(23400, 'Windows update');
+
+INSERT INTO atms (stock, withdraw_log)
+VALUES
+    (1540, '500\n4500\n200'),(21000, '300\n400\n500'),(23400, '700\n900\n1300\n9000');
+
 INSERT INTO branch (open_hours, close_hours, address)
     VALUES
     ('06:30:00', '17:30:00', 'Preslova 25'),
