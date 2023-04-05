@@ -3,6 +3,9 @@ const pg = require('pg')
 const crypto = require('crypto')
 
 const atm_route = require('./routes/atm')
+const branch_route = require('./routes/branch')
+
+
 const public = require('./db/public')
 const private = require('./db/private')
 
@@ -44,6 +47,7 @@ const apiKeyAuth = async (req, res, next) => {
 
 
 app.use('/', apiKeyAuth, atm_route)
+app.use('/', apiKeyAuth, branch_route)
 
 
 
