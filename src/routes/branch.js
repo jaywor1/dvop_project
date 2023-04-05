@@ -4,10 +4,14 @@ const router = express.Router()
 
 const public = require('../db/public')
 
-router.get('/branch', async (req, res) => {
+const checkAdmin = (req, res, next) => {
     if (req.admin == false) {
         return res.status(401).send("Forbiden")
     }
+    next()
+}
+
+router.get('/branch', checkAdmin, async (req, res) => {
     console.log("GET /branch")
     const client = await public.connect();
 
@@ -21,6 +25,10 @@ router.get('/branch', async (req, res) => {
             client.release();
         }
     })
+
+})
+
+router.post('/branch', async (req, res) => {
 
 })
 
