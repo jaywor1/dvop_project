@@ -1,26 +1,12 @@
 const express = require('express')
 const pg = require('pg')
 const crypto = require('crypto')
+
 const atm_route = require('./routes/atm')
+const public = require('./db/public')
+const private = require('./db/private')
 
 const app = express();
-
-
-const pool = new pg.Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "db",
-    password: "postgres",
-    port: 5432
-})
-
-const private = new pg.Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "private",
-    password: "postgres",
-    port: 5432
-})
 
 const hashString = (str) => {
     const hash = crypto.createHash('sha256');
