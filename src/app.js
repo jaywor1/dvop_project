@@ -1,7 +1,7 @@
 const express = require('express')
 const pg = require('pg')
 const crypto = require('crypto')
-const atm_route = require('./atm')
+const atm_route = require('./routes/atm.js')
 
 const app = express();
 
