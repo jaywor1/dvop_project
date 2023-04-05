@@ -30,7 +30,7 @@ const hashString = (str) => {
 const apiKeyAuth = async (req, res, next) => {
     const apiKey = req.query.api_key
     if (!apiKey) {
-        return res.status(401)
+        return res.status(401).send("Invalid request")
     }
 
     const client = await private.connect()
@@ -46,10 +46,10 @@ const apiKeyAuth = async (req, res, next) => {
             }
         }
 
-        //        res.status(403).send("Forbiden");
 
     } finally {
         client.release();
+        res.status(403).send("Forbiden");
     }
 }
 
