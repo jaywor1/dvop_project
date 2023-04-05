@@ -5,6 +5,9 @@ const router = express.Router()
 const public = require('../db/public')
 
 router.get('/branch', async (req, res) => {
+    if (req.admin == false) {
+        return res.status(401).send("Forbiden")
+    }
     console.log("GET /branch")
     const client = await public.connect();
 
