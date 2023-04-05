@@ -6,7 +6,7 @@ const atm_route = require('./routes/atm.js')
 const app = express();
 
 
-const pool = new pg.Pool({
+const public = new pg.Pool({
     user: "postgres",
     host: "localhost",
     database: "db",
