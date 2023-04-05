@@ -1,12 +1,12 @@
 const express = require('express')
 const pg = require('pg')
 const crypto = require('crypto')
-const atm_route = require('./routes/atm.js')
+const atm_route = require('./routes/atm')
 
 const app = express();
 
 
-const public = new pg.Pool({
+const pool = new pg.Pool({
     user: "postgres",
     host: "localhost",
     database: "db",
@@ -30,7 +30,7 @@ const hashString = (str) => {
 const apiKeyAuth = async (req, res, next) => {
     const apiKey = req.query.api_key
     if (!apiKey) {
-        return res.status(401).send("Invalid request")
+        return res.status(401).send("Invalid Request")
     }
 
     const client = await private.connect()
@@ -38,19 +38,21 @@ const apiKeyAuth = async (req, res, next) => {
     try {
         const result = await client.query('SELECT * FROM tokens')
 
+
         for (token of result.rows) {
-            if (token.token_hash == hashString(apiKey)) {
-                console.log("Authentication Success\nAdmin: " + token.admin)
+            console.log(token.token_hash + ";" + hashString(apiKey))
+            if (token.token_hash === hashString(apiKey)) {
                 req.admin = token.admin
                 next()
+                break
             }
         }
 
 
     } finally {
         client.release();
-        res.status(403).send("Forbiden");
     }
+
 }
 
 
