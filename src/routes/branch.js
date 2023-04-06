@@ -52,6 +52,23 @@ router.post('/branch', checkAdmin, express.json(), async (req, res) => {
 
 })
 
+router.delete('/branch/:branch_id', checkAdmin, async (req, res) => {
+    console.log("DELETE /branch/" + req.params.branch_id)
+    const client = await public.connect();
+
+    client.query('DELETE FROM branch WHERE branch_id = $1', [req.params.branch_id], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+
+})
+
 router.get('/branch/:branch_id/employes', checkAdmin, async (req, res) => {
     console.log("GET /branch/" + req.params.branch_id + "/employes")
     const client = await public.connect();
