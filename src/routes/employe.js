@@ -56,6 +56,22 @@ router.put('/employe', checkAdmin, express.json(), async (req, res) => {
 
 })
 
+router.delete('/employe/:employe_id', checkAdmin, async (req, res) => {
+    console.log("DELETE /employe/" + req.params.employe_id)
+    const client = await public.connect();
+
+    client.query('DELETE FROM employes WHERE employe_id = $1', [req.params.employe_id], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+
+})
 
 
 module.exports = router;
