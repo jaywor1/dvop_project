@@ -52,4 +52,21 @@ router.post('/branch', checkAdmin, express.json(), async (req, res) => {
 
 })
 
+router.get('/branch/:branch_id/employes', checkAdmin, async (req, res) => {
+    console.log("GET /branch/" + req.params.branch_id + "/employes")
+    const client = await public.connect();
+
+    client.query('SELECT * FROM employes WHERE branch_id = $1', [req.params.branch_id], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).json(result.rows)
+            client.release();
+        }
+    })
+
+})
+
 module.exports = router;
