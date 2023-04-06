@@ -4,7 +4,7 @@ const crypto = require('crypto')
 
 const atm_route = require('./routes/atm')
 const branch_route = require('./routes/branch')
-
+const employe_route = require('./routes/employe')
 
 const public = require('./db/public')
 const private = require('./db/private')
@@ -16,10 +16,12 @@ const hashString = (str) => {
     hash.update(str);
     return hash.digest('hex');
 };
+
+
 const apiKeyAuth = async (req, res, next) => {
     const apiKey = req.query.api_key
     if (!apiKey) {
-        return res.status(401).send("Invalid Request")
+        return res.status(400).send("Invalid Request")
     }
 
     const client = await private.connect()
@@ -29,7 +31,6 @@ const apiKeyAuth = async (req, res, next) => {
 
 
         for (token of result.rows) {
-            console.log(token.token_hash + ";" + hashString(apiKey))
             if (token.token_hash === hashString(apiKey)) {
                 req.admin = token.admin
                 next()
@@ -48,7 +49,7 @@ const apiKeyAuth = async (req, res, next) => {
 
 app.use('/', apiKeyAuth, atm_route)
 app.use('/', apiKeyAuth, branch_route)
-
+app.use('/', apiKeyAuth, employe_route)
 
 
 app.listen(3000, () => {
