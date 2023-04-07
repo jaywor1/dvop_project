@@ -55,24 +55,5 @@ router.get('/atm/refil', async (req, res) => {
     }
 })
 
-router.get('/atm/:atm_id/log', async (req, res) => {
-    console.log("GET /atm/" + req.params.atm_id + "/log")
-    const client = await public.connect();
-
-    client.query('SELECT withdraw_log FROM atms WHERE atm_id = $1', [req.params.atm_id], (err, result) => {
-        if (err) {
-            console.log(err.stack)
-            client.release();
-        }
-        else {
-            res.status(200).json(result.rows)
-            client.release();
-        }
-    })
-
-})
-router.get('/atm/:atm_id/error', (req, res) => {
-    // returns error log
-})
 
 module.exports = router;
