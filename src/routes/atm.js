@@ -2,13 +2,8 @@ const express = require('express')
 const pg = require('pg')
 const router = express.Router()
 
-const pool = new pg.Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "db",
-    password: "postgres",
-    port: 5432
-})
+const public = require('../db/public')
+
 
 router.get('/atm', async (req, res) => {
     console.log("GET /atm")
