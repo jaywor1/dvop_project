@@ -10,6 +10,7 @@ const public = require('./db/public')
 const private = require('./db/private')
 
 const app = express();
+const EXPRESS_PORT = 3000;
 
 const hashString = (str) => {
     const hash = crypto.createHash('sha256');
@@ -52,6 +53,6 @@ app.use('/', apiKeyAuth, branch_route)
 app.use('/', apiKeyAuth, employe_route)
 
 
-app.listen(3000, () => {
-    console.log('srv runnin\'')
+app.listen(EXPRESS_PORT, () => {
+    console.log('srv servin\' on port ' + EXPRESS_PORT)
 })
