@@ -27,8 +27,8 @@ router.get('/branch', checkAdmin, async (req, res) => {
     })
 
 })
-router.post('/branch', checkAdmin, express.json(), async (req, res) => {
-    console.log("POST /branch")
+router.put('/branch', checkAdmin, express.json(), async (req, res) => {
+    console.log("PUT /branch")
     const reqBody = req.body;
     const client = await public.connect();
 
@@ -45,7 +45,7 @@ router.post('/branch', checkAdmin, express.json(), async (req, res) => {
             client.release();
         }
         else {
-            res.status(200).json(result.rows)
+            res.status(200).json("Success");
             client.release();
         }
     })
