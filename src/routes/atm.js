@@ -16,6 +16,28 @@ router.get('/atm', async (req, res) => {
     }
 })
 
+router.put('/atm', express.json(), async(req, res) => {
+    console.log("PUT /atm")
+    const client = await public.connect()
+
+    reqBody = req.body;
+
+    if (reqBody.stock == undefined)
+        return res.status(400).send("Invalid request")
+    
+
+    client.query('INSERT INTO atms (stock) VALUES ($1)', [reqBody.stock], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+})
+
 router.delete('/atm/:atm_id', async (req, res) => {
     console.log("DELETE /atm/" + req.params.atm_id)
     const client = await public.connect();
