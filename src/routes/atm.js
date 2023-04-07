@@ -16,6 +16,24 @@ router.get('/atm', async (req, res) => {
     }
 })
 
+router.delete('/atm/:atm_id', async (req, res) => {
+    console.log("DELETE /atm/" + req.params.atm_id)
+    const client = await public.connect();
+    
+    const result = await client.query('DELETE FROM atms WHERE atm_id = $1', [req.params.atm_id], (err, result) => {
+        if(err){
+            console.log(err.stack)
+            client.release()
+            return res.status(400).json("Invalid request")
+        } else {
+            client.release();
+            return res.status(200).json("Success")
+        }
+
+    });
+    
+})
+
 router.get('/atm/:atm_id', async (req, res) => {
     console.log("GET /atm/" + req.params.atm_id + "/log")
     const client = await public.connect();
