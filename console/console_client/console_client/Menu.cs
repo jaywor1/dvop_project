@@ -71,7 +71,7 @@ namespace console_client
 
             for (int i = 0; i < tasks.Length; i++)
             {
-                if(i == highlighted)
+                if (i == highlighted)
                 {
                     Fix(tasks[i].Invoke());
                     break;
