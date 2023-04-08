@@ -15,5 +15,14 @@ namespace console_client
         public string position { get; set; }
 
         public bool present { get; set; }
+
+        public Employe(int branch_id, string name, string position)
+        {
+            this.id = 0;
+            this.branch_id = branch_id;
+            this.name = name;
+            this.position = position;
+            this.present = true;
+        }
     }
 }
