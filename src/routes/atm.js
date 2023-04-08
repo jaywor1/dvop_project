@@ -10,7 +10,7 @@ router.get('/atm', async (req, res) => {
     const client = await public.connect();
     try {
         const result = await client.query('SELECT * FROM atms')
-        res.send(result.rows)
+        res.status(200).json(result.rows)
     } finally {
         client.release();
     }
@@ -87,8 +87,8 @@ router.post('/atm/broken', express.json(), async (req, res) => {
 
     const client = await public.connect();
     try {
-        const result = await client.query('SELECT atm_id,error FROM atms WHERE error = $1', [reqBody.broken])
-        res.json(result.rows)
+        const result = await client.query('SELECT * FROM atms WHERE error = $1', [reqBody.broken])
+        res.status(200).json(result.rows)
     } finally {
         client.release();
     }
@@ -98,17 +98,44 @@ router.post('/atm/refil', express.json(), async (req, res) => {
     console.log("POST /atm/refil")
 
     reqBody = req.body;
-
     if(reqBody.limit == undefined)
         return res.status(400).json("Invalid request")
 
     const client = await public.connect();
     try {
         const result = await client.query('SELECT * FROM atms WHERE stock < $1', [reqBody.limit])
-        res.send(result.rows)
+        res.status(200).send(result.rows)
     } finally {
         client.release();
     }
+})
+
+router.patch('/atm/refil', express.json(), async(req, res) => {
+    console.log("PATCH /atm/refil")
+
+    reqBody = req.body;
+
+    params = [req.body.atm_id, req.body.stock]
+
+    for(par of params){
+        if(par == undefined)
+            return res.status(400).json("Invalid Request")
+    }
+
+    const client = await public.connect();
+
+    client.query('UPDATE atms SET stock = $2 WHERE atm_id = $1', params, (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+
+
 })
 
 
