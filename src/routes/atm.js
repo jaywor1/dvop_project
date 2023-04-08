@@ -61,7 +61,7 @@ router.delete('/atm/:atm_id', async (req, res) => {
 })
 
 router.get('/atm/:atm_id', async (req, res) => {
-    console.log("GET /atm/" + req.params.atm_id + "/log")
+    console.log("GET /atm/" + req.params.atm_id)
     const client = await public.connect();
 
     client.query('SELECT * FROM atms WHERE atm_id = $1', [req.params.atm_id], (err, result) => {
