@@ -21,9 +21,9 @@ namespace console_client
             int highlighted = 0;
 
 
-            del delAtm = Atm;
+            del[] menuFuncs = new del[] {Atm};
 
-            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM" }, delAtm);
+            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM" }, menuFuncs);
 
             while (true)
             {
@@ -36,12 +36,10 @@ namespace console_client
 
         static async Task Atm()
         {
-            del delGetAtm = GetAtm;
-            del delPutAtm = PutAtm;
-            del delGetAtmRefil = PostAtmRefil;
-            del delDeleteAtm = DeleteAtm;
+            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil };
 
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM" }, delGetAtm, delPutAtm, delGetAtmRefil, delDeleteAtm);
+
+            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock" }, atm_funcs);
             menu.Show();
 
 
@@ -171,6 +169,49 @@ namespace console_client
 
             }
         }
+
+        static async Task PatchAtmRefil()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("ATM ID: ");
+                string atm_id = Console.ReadLine();
+                Console.Write("New stock: ");
+                string stock = Console.ReadLine();
+
+
+                Console.WriteLine("PATCH");
+
+                var content = new StringContent(JsonSerializer.Serialize(new { atm_id = atm_id, stock = stock }), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PatchAsync("atm/refil?api_key=" + token, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+
+                    Console.WriteLine("RESULTS\n");
+
+                    Console.WriteLine(json);
+
+                    Console.WriteLine("\nPress ENTER to continue...");
+                    Console.ReadLine();
+
+                }
+                else
+                {
+                    Console.WriteLine("ERROR");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
         public static int checkKey(ConsoleKeyInfo cki)
         {
             switch (cki.Key)

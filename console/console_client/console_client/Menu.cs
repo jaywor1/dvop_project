@@ -15,7 +15,7 @@ namespace console_client
         public string[] options;
         public del[] tasks;
 
-        public Menu(string name, ConsoleColor highlightCol, ConsoleColor defaultCol, string[] options, params del[] tasks)
+        public Menu(string name, ConsoleColor highlightCol, ConsoleColor defaultCol, string[] options, del[] tasks)
         {
             this.name = name;
             this.highlightCol = highlightCol;
