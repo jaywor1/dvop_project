@@ -22,11 +22,15 @@ router.put('/atm', express.json(), async(req, res) => {
 
     reqBody = req.body;
 
-    if (reqBody.stock == undefined)
+    params = [reqBody.stock, reqBody.address, 'f']
+
+    for(par of params){
+        if (par == undefined)
         return res.status(400).send("Invalid request")
+    }
     
 
-    client.query('INSERT INTO atms (stock) VALUES ($1)', [reqBody.stock], (err, result) => {
+    client.query('INSERT INTO atms (stock, address, error) VALUES ($1, $2, $3)', params, (err, result) => {
         if (err) {
             console.log(err.stack)
             client.release();
