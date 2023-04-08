@@ -36,10 +36,10 @@ namespace console_client
 
         static async Task Atm()
         {
-            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil };
+            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError };
 
 
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock" }, atm_funcs);
+            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors" }, atm_funcs);
             menu.Show();
 
 
@@ -144,6 +144,48 @@ namespace console_client
                 var content = new StringContent(JsonSerializer.Serialize(new { limit = limit }), Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = await client.PostAsync("atm/refil?api_key=" + token, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+                    ATM[] atm = JsonSerializer.Deserialize<ATM[]>(json);
+
+                    Console.WriteLine("RESULTS\n");
+
+                    for (int i = 0; i < atm.Length; i++)
+                    {
+                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error} | {atm[i].address}");
+                    }
+                    Console.WriteLine("\nPress ENTER to continue...");
+                    Console.ReadLine();
+
+                }
+                else
+                {
+                    Console.WriteLine("ERROR");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
+        static async Task PostAtmError()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("Error: ");
+                string error = Console.ReadLine();
+
+                Console.WriteLine("POST");
+
+                var content = new StringContent(JsonSerializer.Serialize(new { error = error }), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync("atm/error?api_key=" + token, content);
 
                 if (response.IsSuccessStatusCode)
                 {
