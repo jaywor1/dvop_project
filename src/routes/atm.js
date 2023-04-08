@@ -77,8 +77,8 @@ router.get('/atm/:atm_id', async (req, res) => {
 
 })
 
-router.post('/atm/broken', express.json(), async (req, res) => {
-    console.log("POST /atm/broken")
+router.post('/atm/error', express.json(), async (req, res) => {
+    console.log("POST /atm/error")
 
     reqBody = req.body;
 
