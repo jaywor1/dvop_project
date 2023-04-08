@@ -82,12 +82,12 @@ router.post('/atm/error', express.json(), async (req, res) => {
 
     reqBody = req.body;
 
-    if(reqBody.broken == undefined)
+    if(reqBody.error == undefined)
         return res.status(400).json("Invalid request")
 
     const client = await public.connect();
     try {
-        const result = await client.query('SELECT * FROM atms WHERE error = $1', [reqBody.broken])
+        const result = await client.query('SELECT * FROM atms WHERE error = $1', [reqBody.error])
         res.status(200).json(result.rows)
     } finally {
         client.release();
