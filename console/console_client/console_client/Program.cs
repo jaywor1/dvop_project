@@ -34,7 +34,9 @@ namespace console_client
         static async Task Atm()
         {
             del delGetAtm = GetAtm;
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs" }, delGetAtm);
+            del delPutAtm = PutAtm;
+
+            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM" }, delGetAtm, delPutAtm);
             menu.Show();
             
             
@@ -63,7 +65,7 @@ namespace console_client
 
                     for (int i = 0; i < atm.Length; i++)
                     {
-                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock} | {atm[i].withdraw_log} | {atm[i].error_log}");
+                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error}");
                     }
                     Console.WriteLine("\nPress ENTER to continue...");
                     Console.ReadLine();
@@ -74,7 +76,8 @@ namespace console_client
 
 
 
-        static async Task PostAtm()
+
+        static async Task PutAtm()
         {
             using(var client = new HttpClient())
             {
@@ -82,13 +85,19 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                
+                Console.Write("Enter stock: ");
+                int stock = int.Parse(Console.ReadLine());
+                Console.Write("Enter address: ");
+                string address = Console.ReadLine();
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key="+ token, obj);
+                ATM atm = new ATM(0, stock, false, address);
+
+                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key="+ token, atm);
 
                 if (res.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Created " + obj.ToString());
+                    Console.WriteLine("Created " + atm.ToString() + "\nPress ENTER to continue...");
+                    Console.ReadLine();
                 }
 
             }

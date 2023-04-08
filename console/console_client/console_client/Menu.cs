@@ -31,7 +31,7 @@ namespace console_client
 
             while (true)
             {
-
+                Console.Clear();
                 Console.WriteLine($"-------------- {name} --------------");
                 for (int i = 0; i < options.Length; i++)
                 {
