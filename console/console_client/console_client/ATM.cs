@@ -8,13 +8,13 @@ namespace console_client
 {
     public class ATM
     {
-        public int atm_id;
-        public int stock;
-        public bool error;
-        public string address;
+        public int atm_id { get; set; }
+        public int stock { get; set; }
+        public string address { get; set; }
+        public bool error { get; set; }
 
 
-        public ATM(int atm_id, int stock, bool error, string address)
+        public ATM(int atm_id, int stock, string address, bool error)
         {
             this.atm_id = atm_id;
             this.stock = stock;
