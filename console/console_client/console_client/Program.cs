@@ -1,9 +1,11 @@
 ﻿using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace console_client
 {
-   // public delegate Task de();
+    // public delegate Task de();
 
     internal class Program
     {
@@ -17,6 +19,7 @@ namespace console_client
 
             int checkKeyVal = -2;
             int highlighted = 0;
+
 
             del delAtm = Atm;
 
@@ -35,14 +38,16 @@ namespace console_client
         {
             del delGetAtm = GetAtm;
             del delPutAtm = PutAtm;
+            del delGetAtmRefil = PostAtmRefil;
+            del delDeleteAtm = DeleteAtm;
 
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM" }, delGetAtm, delPutAtm);
+            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM" }, delGetAtm, delPutAtm, delGetAtmRefil, delDeleteAtm);
             menu.Show();
-            
-            
+
+
         }
 
- 
+
 
         static async Task GetAtm()
         {
@@ -79,7 +84,7 @@ namespace console_client
 
         static async Task PutAtm()
         {
-            using(var client = new HttpClient())
+            using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -90,9 +95,9 @@ namespace console_client
                 Console.Write("Enter address: ");
                 string address = Console.ReadLine();
 
-                ATM atm = new ATM(0, stock, false, address);
+                ATM atm = new ATM(0, stock, address, false);
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key="+ token, atm);
+                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key=" + token, atm);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -103,7 +108,66 @@ namespace console_client
             }
         }
 
-      
+        static async Task DeleteAtm()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("Enter ATM id: ");
+                string atm_id = Console.ReadLine();
+
+                HttpResponseMessage res = await client.DeleteAsync($"atm/{atm_id}?api_key={token}");
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Deleted " + atm_id + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
+        static async Task PostAtmRefil()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.WriteLine("POST");
+
+                var content = new StringContent(JsonSerializer.Serialize(new { limit = 50000 }), Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync("atm/refil?api_key=" + token, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+                    ATM[] atm = JsonSerializer.Deserialize<ATM[]>(json);
+
+                    Console.WriteLine("RESULTS\n");
+
+                    for (int i = 0; i < atm.Length; i++)
+                    {
+                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error} | {atm[i].address}");
+                    }
+                    Console.WriteLine("\nPress ENTER to continue...");
+                    Console.ReadLine();
+
+                }
+                else
+                {
+                    Console.WriteLine("ERROR");
+                    Console.ReadLine();
+                }
+
+            }
+        }
         public static int checkKey(ConsoleKeyInfo cki)
         {
             switch (cki.Key)
@@ -122,5 +186,21 @@ namespace console_client
             }
         }
 
+        /*
+        public static void CreateTable(object[] obj)
+        {
+            PropertyInfo[] props = obj[0].GetType().GetProperties();
+
+
+            for (int i = 0; i < obj.Length; i++)
+            {
+                for (int y = 0; y < props.Length; y++)
+                {
+                    string 
+                }
+            }
+
+        }
+        */
     }
 }
