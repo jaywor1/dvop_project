@@ -21,9 +21,9 @@ namespace console_client
             int highlighted = 0;
 
 
-            del[] menuFuncs = new del[] {Atm};
+            del[] menuFuncs = new del[] {Atm, Empl };
 
-            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM" }, menuFuncs);
+            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Employe" }, menuFuncs);
 
             while (true)
             {
@@ -43,6 +43,43 @@ namespace console_client
             menu.Show();
 
 
+        }
+
+        static async Task Empl()
+        {
+            del[] empl_funcs = new del[] { PutEmpl };
+
+            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Create employe" }, empl_funcs);
+            menu.Show();
+        }
+
+        static async Task PutEmpl()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("Enter name: ");
+                string name = Console.ReadLine();
+                Console.Write("Enter branch ID: ");
+                string branch_id = Console.ReadLine();
+                Console.Write("Enter position: ");
+                string position = Console.ReadLine();
+
+                Employe employe = new Employe(int.Parse(branch_id), name, position);
+
+
+                HttpResponseMessage res = await client.PutAsJsonAsync("employe?api_key=" + token, employe);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Created " + employe.name + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
         }
 
 
