@@ -77,22 +77,34 @@ router.get('/atm/:atm_id', async (req, res) => {
 
 })
 
-router.get('/atm/broken', async (req, res) => {
-    console.log("GET /atm/broken")
+router.post('/atm/broken', express.json(), async (req, res) => {
+    console.log("POST /atm/broken")
+
+    reqBody = req.body;
+
+    if(reqBody.broken == undefined)
+        return res.status(400).json("Invalid request")
+
     const client = await public.connect();
     try {
-        const result = await client.query('SELECT atm_id,error_log FROM atms WHERE error_log is not null')
+        const result = await client.query('SELECT atm_id,error FROM atms WHERE error = $1', [reqBody.broken])
         res.json(result.rows)
     } finally {
         client.release();
     }
 })
 
-router.get('/atm/refil', async (req, res) => {
-    console.log("GET /atm/refil")
+router.post('/atm/refil', express.json(), async (req, res) => {
+    console.log("POST /atm/refil")
+
+    reqBody = req.body;
+
+    if(reqBody.limit == undefined)
+        return res.status(400).json("Invalid request")
+
     const client = await public.connect();
     try {
-        const result = await client.query('SELECT * FROM atms WHERE stock < 20000')
+        const result = await client.query('SELECT * FROM atms WHERE stock < $1', [reqBody.limit])
         res.send(result.rows)
     } finally {
         client.release();
