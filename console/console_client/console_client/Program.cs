@@ -14,7 +14,7 @@ namespace console_client
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
-
+            
             const string admin_token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
 
             int checkKeyVal = -2;
@@ -138,9 +138,12 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                Console.Write("Limit: ");
+                string limit = Console.ReadLine();
+
                 Console.WriteLine("POST");
 
-                var content = new StringContent(JsonSerializer.Serialize(new { limit = 50000 }), Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonSerializer.Serialize(new { limit = limit }), Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = await client.PostAsync("atm/refil?api_key=" + token, content);
 
