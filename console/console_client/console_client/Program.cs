@@ -47,9 +47,9 @@ namespace console_client
 
         static async Task Empl()
         {
-            del[] empl_funcs = new del[] { PutEmpl };
+            del[] empl_funcs = new del[] { PutEmpl, DeleteEmpl };
 
-            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Create employe" }, empl_funcs);
+            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Create employe", "Delete employe" }, empl_funcs);
             menu.Show();
         }
 
@@ -82,6 +82,52 @@ namespace console_client
             }
         }
 
+        static async Task DeleteEmpl()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("Enter employe ID: ");
+                string id = Console.ReadLine();
+
+
+                HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
+        static async Task MoveEmpl()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.Write("Enter employe ID: ");
+                string id = Console.ReadLine();
+
+                Employe
+
+                HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
 
 
         static async Task GetAtm()
