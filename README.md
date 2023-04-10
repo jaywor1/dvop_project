@@ -13,21 +13,7 @@ Please let me pass this subject :))
 - /branch/{branch_id}/manager --> list of managers in selected branch
 - /branch/director --> list of director of each branch
 - /branch/opened --> opened branches
-### DB tables
-- employes
-    - employee_id (SERIAL PRIMARY KEY NOT NULL)
-    - branch_id (FOREIGN KEY INT)
-    - position (TEXT NOT NULL)
-    - present (BOOLEAN NOT NULL)
-
-- branch
-    - branch_id (SERIAL PRIMARY KEY NOT NULL)
-    - open_hours (TIME NOT NULL)
-    - close_hours (TIME NOT NULL)
-    - address (TEXT NOT NULL)
-
-- atms
-    - atm_id (SERIAL PRIMARY KEY NOT NULL)
-    - stock (INT NOT NULL)
-    - withdraw_log (TEXT NULL)
-    - error_log (TEXT NULL)
+### DB Private
+![image](https://user-images.githubusercontent.com/103755136/230916105-eb2e9efa-7374-45a3-9d5d-cd582e707b19.png)
+### DB Public
+![image](https://user-images.githubusercontent.com/103755136/230916524-ce8901ba-0257-41b6-9433-dfda1954fd9c.png)
