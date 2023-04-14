@@ -116,8 +116,6 @@ namespace console_client
                 Console.Write("Enter employe ID: ");
                 string id = Console.ReadLine();
 
-                Employe
-
                 HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
