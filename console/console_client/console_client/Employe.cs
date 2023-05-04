@@ -8,7 +8,7 @@ namespace console_client
 {
     internal class Employe
     {
-        public int id { get; set; }
+        public int employe_id { get; set; }
         public int branch_id { get; set; }
         public string name { get; set; }
 
@@ -18,7 +18,7 @@ namespace console_client
 
         public Employe(int branch_id, string name, string position)
         {
-            this.id = 0;
+            this.employe_id = 0;
             this.branch_id = branch_id;
             this.name = name;
             this.position = position;

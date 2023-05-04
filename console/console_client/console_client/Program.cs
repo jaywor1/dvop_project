@@ -47,12 +47,56 @@ namespace console_client
 
         static async Task Empl()
         {
-            del[] empl_funcs = new del[] { PutEmpl, DeleteEmpl };
+            del[] empl_funcs = new del[] { GetEmpl, PutEmpl, DeleteEmpl };
 
-            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Create employe", "Delete employe" }, empl_funcs);
+            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe" }, empl_funcs);
             menu.Show();
         }
 
+        static async Task GetEmpl()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.WriteLine("GET");
+                HttpResponseMessage response = await client.GetAsync("employe?api_key=" + token);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+                    Employe[] employes = JsonSerializer.Deserialize<Employe[]>(json);
+
+                    Console.WriteLine("RESULTS\n");
+
+                    int lId = employes.Max(x => x.employe_id.ToString().Length);
+                    int lName = employes.Max(x =>  x.name).Length;
+                    int lPos = employes.Max(x => x.position).Length;
+                    int lBranch = employes.Max(x => x.branch_id.ToString().Length);
+
+
+                    ConsoleColor defaultCol = Console.ForegroundColor;
+                    for (int i = 0; i < employes.Length; i++)
+                    {
+                        if (employes[i].present)
+                            Console.ForegroundColor = ConsoleColor.Green;
+                        else
+                            Console.ForegroundColor = ConsoleColor.Red;
+                        String s = String.Format($"| {{0,{lId}}} | {{1,{lName}}} | {{2,{lPos}}} | {{3,{lBranch}}} |", employes[i].employe_id, employes[i].name, employes[i].position, employes[i].branch_id);
+                        //String s = String.Format($"|{{0,{lId}}}|{{1,{lName}}}|{2,5}|{3,5}|", employes[i].id, employes[i].name, employes[i].position, employes[i].branch_id);
+                        Console.WriteLine(s);
+                    }
+                    Console.ForegroundColor = defaultCol;
+
+                    Console.WriteLine("\nPress ENTER to continue...");
+                    Console.ReadLine();
+
+                }
+            }
+        }
         static async Task PutEmpl()
         {
             using (var client = new HttpClient())
@@ -100,11 +144,12 @@ namespace console_client
                 {
                     Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
                     Console.ReadLine();
+                    
                 }
 
             }
         }
-
+       
         static async Task MoveEmpl()
         {
             using (var client = new HttpClient())
@@ -189,13 +234,15 @@ namespace console_client
 
         static async Task DeleteAtm()
         {
+            Console.WriteLine("Listing ATMs");
+            await GetAtm();
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Console.Write("Enter ATM id: ");
+                Console.Write("Enter ATM id to delete: ");
                 string atm_id = Console.ReadLine();
 
                 HttpResponseMessage res = await client.DeleteAsync($"atm/{atm_id}?api_key={token}");
@@ -352,6 +399,9 @@ namespace console_client
                     return -2;
             }
         }
+
+ 
+        
 
         /*
         public static void CreateTable(object[] obj)
