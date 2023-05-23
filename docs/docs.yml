@@ -15,7 +15,8 @@ tags:
     description: ATM machines
   - name: User
     description: Clients of bank
-    
+  - name: Employe
+    description: Employes of bank
     
     
 paths:
@@ -241,6 +242,65 @@ paths:
           description: Forbidden
         "404":
           description: User not found
+          
+  /employe:
+    get:
+      tags:
+        - Employe
+      summary: Get employes via ID
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Employes"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+          
+    put:
+      tags:
+        - Employe
+      summary: Updates employe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employe"
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+          
+  /employe/{employe_id}:
+    delete:
+      tags:
+        - Employe
+      summary: Deletes employe via ID
+      parameters:
+        - name: employe_id
+          in: path
+          description: Identification of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
 
   
                  
@@ -329,3 +389,48 @@ components:
             type: integer
             format: int64
             example: 20000
+            
+    Employe:
+      type: object
+      properties:
+        employe_id:
+          type: integer
+          format: int64
+          example: 17
+        branch_id:
+          type: integer
+          format: int64
+          example: 3
+        name:
+          type: string
+          example: "Cliff Burton"
+        position:
+          type: string
+          example: "CEO"
+        present:
+          type: boolean
+          example: false
+          
+    Employes:
+      type: array
+      items:
+        type: object
+        properties:
+          employe_id:
+            type: integer
+            format: int64
+            example: 17
+          branch_id:
+            type: integer
+            format: int64
+            example: 3
+          name:
+            type: string
+            example: "Cliff Burton"
+          position:
+            type: string
+            example: "CEO"
+          present:
+            type: boolean
+            example: false
+          
