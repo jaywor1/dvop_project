@@ -14,14 +14,14 @@ namespace console_client
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
-            
+
             const string admin_token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
 
             int checkKeyVal = -2;
             int highlighted = 0;
 
 
-            del[] menuFuncs = new del[] {Atm, Empl };
+            del[] menuFuncs = new del[] { Atm, Empl };
 
             Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Employe" }, menuFuncs);
 
@@ -73,7 +73,7 @@ namespace console_client
                     Console.WriteLine("RESULTS\n");
 
                     int lId = employes.Max(x => x.employe_id.ToString().Length);
-                    int lName = employes.Max(x =>  x.name).Length;
+                    int lName = employes.Max(x => x.name).Length;
                     int lPos = employes.Max(x => x.position).Length;
                     int lBranch = employes.Max(x => x.branch_id.ToString().Length);
 
@@ -144,12 +144,12 @@ namespace console_client
                 {
                     Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
                     Console.ReadLine();
-                    
+
                 }
 
             }
         }
-       
+
         static async Task MoveEmpl()
         {
             using (var client = new HttpClient())
@@ -400,8 +400,8 @@ namespace console_client
             }
         }
 
- 
-        
+
+
 
         /*
         public static void CreateTable(object[] obj)

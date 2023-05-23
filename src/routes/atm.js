@@ -16,7 +16,7 @@ router.get('/atm', async (req, res) => {
     }
 })
 
-router.put('/atm', express.json(), async(req, res) => {
+router.put('/atm', express.json(), async (req, res) => {
     console.log("PUT /atm")
     const client = await public.connect()
 
@@ -24,11 +24,11 @@ router.put('/atm', express.json(), async(req, res) => {
 
     params = [reqBody.stock, reqBody.address, 'f']
 
-    for(par of params){
+    for (par of params) {
         if (par == undefined)
-        return res.status(400).send("Invalid request")
+            return res.status(400).send("Invalid request")
     }
-    
+
 
     client.query('INSERT INTO atms (stock, address, error) VALUES ($1, $2, $3)', params, (err, result) => {
         if (err) {
@@ -45,9 +45,9 @@ router.put('/atm', express.json(), async(req, res) => {
 router.delete('/atm/:atm_id', async (req, res) => {
     console.log("DELETE /atm/" + req.params.atm_id)
     const client = await public.connect();
-    
+
     const result = await client.query('DELETE FROM atms WHERE atm_id = $1', [req.params.atm_id], (err, result) => {
-        if(err){
+        if (err) {
             console.log(err.stack)
             client.release()
             return res.status(400).json("Invalid request")
@@ -57,7 +57,7 @@ router.delete('/atm/:atm_id', async (req, res) => {
         }
 
     });
-    
+
 })
 
 router.get('/atm/:atm_id', async (req, res) => {
@@ -82,7 +82,7 @@ router.post('/atm/error', express.json(), async (req, res) => {
 
     reqBody = req.body;
 
-    if(reqBody.error == undefined)
+    if (reqBody.error == undefined)
         return res.status(400).json("Invalid request")
 
     const client = await public.connect();
@@ -98,7 +98,7 @@ router.post('/atm/refil', express.json(), async (req, res) => {
     console.log("POST /atm/refil")
 
     reqBody = req.body;
-    if(reqBody.limit == undefined)
+    if (reqBody.limit == undefined)
         return res.status(400).json("Invalid request")
 
     const client = await public.connect();
@@ -110,15 +110,15 @@ router.post('/atm/refil', express.json(), async (req, res) => {
     }
 })
 
-router.patch('/atm/refil', express.json(), async(req, res) => {
+router.patch('/atm/refil', express.json(), async (req, res) => {
     console.log("PATCH /atm/refil")
 
     reqBody = req.body;
 
     params = [req.body.atm_id, req.body.stock]
 
-    for(par of params){
-        if(par == undefined)
+    for (par of params) {
+        if (par == undefined)
             return res.status(400).json("Invalid Request")
     }
 
