@@ -19,6 +19,9 @@ tags:
     description: Employes of bank
     
     
+security:
+  - ApiKeyAuth: []
+    
 paths:
   /atm:
     get:
@@ -301,10 +304,13 @@ paths:
           description: Forbidden
         "404":
           description: User not found
-
-  
                  
 components:
+  securitySchemes:
+    ApiKeyAuth:       
+      type: apiKey
+      in: query
+      name: api_key
   schemas:
     Atms:
       type: array
