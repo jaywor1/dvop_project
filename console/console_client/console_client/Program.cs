@@ -36,10 +36,10 @@ namespace console_client
 
         static async Task Atm()
         {
-            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError };
+            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError, BackToMenu };
 
 
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors" }, atm_funcs);
+            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors", "Back to Main menu" }, atm_funcs);
             menu.Show();
 
 
@@ -47,9 +47,9 @@ namespace console_client
 
         static async Task Empl()
         {
-            del[] empl_funcs = new del[] { GetEmpl, PutEmpl, DeleteEmpl };
+            del[] empl_funcs = new del[] { GetEmpl, PutEmpl, DeleteEmpl, BackToMenu };
 
-            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe" }, empl_funcs);
+            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
             menu.Show();
         }
 
@@ -171,7 +171,6 @@ namespace console_client
 
             }
         }
-
 
         static async Task GetAtm()
         {
@@ -403,21 +402,9 @@ namespace console_client
 
 
 
-        /*
-        public static void CreateTable(object[] obj)
+        static async Task BackToMenu()
         {
-            PropertyInfo[] props = obj[0].GetType().GetProperties();
-
-
-            for (int i = 0; i < obj.Length; i++)
-            {
-                for (int y = 0; y < props.Length; y++)
-                {
-                    string 
-                }
-            }
 
         }
-        */
     }
 }
