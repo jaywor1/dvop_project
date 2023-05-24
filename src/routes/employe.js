@@ -56,6 +56,22 @@ router.put('/employe', checkAdmin, express.json(), async (req, res) => {
 
 })
 
+router.get('/employe/:branch_id', checkAdmin, async (req, res) => {
+    console.log("GET /employe/" + req.params.branch_id)
+    const client = await public.connect();
+
+    client.query('SELECT * FROM employes WHERE branch_id = $1', [req.params.branch_id], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).json(result.rows)
+            client.release();
+        }
+    })
+})
+
 router.delete('/employe/:employe_id', checkAdmin, async (req, res) => {
     console.log("DELETE /employe/" + req.params.employe_id)
     const client = await public.connect();
