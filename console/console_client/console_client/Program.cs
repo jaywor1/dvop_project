@@ -12,10 +12,12 @@ namespace console_client
         public const ConsoleColor HIGHLIGHT_COLOR = ConsoleColor.White;
         public const ConsoleColor DEFAULT_COLOR = ConsoleColor.Gray;
 
+        // Few global variables, so what?
+
         public static string SAVE_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data";
         public static string SAVE_FILE = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data\\settings.txt";
 
-        public static int branch_id = 0;
+        public static int branch_id = 1;
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
@@ -155,7 +157,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync("employe?api_key=" + token);
+                HttpResponseMessage response = await client.GetAsync($"employe/{branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -166,8 +168,8 @@ namespace console_client
                     Console.WriteLine("RESULTS\n");
 
                     int lId = employes.Max(x => x.employe_id.ToString().Length);
-                    int lName = employes.Max(x => x.name).Length;
-                    int lPos = employes.Max(x => x.position).Length;
+                    int lName = employes.Max(x => x.name.Length);
+                    int lPos = employes.Max(x => x.position.Length);
                     int lBranch = employes.Max(x => x.branch_id.ToString().Length);
 
 
@@ -179,7 +181,6 @@ namespace console_client
                         else
                             Console.ForegroundColor = ConsoleColor.Red;
                         String s = String.Format($"| {{0,{lId}}} | {{1,{lName}}} | {{2,{lPos}}} | {{3,{lBranch}}} |", employes[i].employe_id, employes[i].name, employes[i].position, employes[i].branch_id);
-                        //String s = String.Format($"|{{0,{lId}}}|{{1,{lName}}}|{2,5}|{3,5}|", employes[i].id, employes[i].name, employes[i].position, employes[i].branch_id);
                         Console.WriteLine(s);
                     }
                     Console.ForegroundColor = defaultCol;
