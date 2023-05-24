@@ -12,27 +12,38 @@ namespace console_client
         public const ConsoleColor HIGHLIGHT_COLOR = ConsoleColor.White;
         public const ConsoleColor DEFAULT_COLOR = ConsoleColor.Gray;
 
-        public static string SAVE_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string SAVE_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data";
+        public static string SAVE_FILE = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data\\settings.txt";
 
         public static int branch_id = 0;
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
-            const string admin_token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
-
-            int checkKeyVal = -2;
-            int highlighted = 0;
-
-
-            del[] menuFuncs = new del[] { Atm, Empl, Settings };
-
-            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Settings" }, menuFuncs);
-
-            while (true)
+            if (LoadData(SAVE_FILE))
             {
-                mainMenu.Show();
-                Console.Clear();
+                const string admin_token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
+
+                int checkKeyVal = -2;
+                int highlighted = 0;
+
+
+                del[] menuFuncs = new del[] { Atm, Empl, Settings };
+
+                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Settings" }, menuFuncs);
+
+                while (true)
+                {
+                    mainMenu.Show();
+                    Console.Clear();
+                }
             }
+            else
+            {
+                Console.WriteLine("[ ERROR ]: Failed loading data");
+                Console.ReadLine();
+            }
+
+           
 
         }
 
@@ -58,7 +69,7 @@ namespace console_client
 
         static async Task Settings()
         {
-            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Branch id", "Back to Main menu");
+            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {branch_id})", "Back to Main menu");
 
             int selected = settingsMenu.ShowInt();
 
@@ -69,7 +80,7 @@ namespace console_client
                     break;
                 case 0:
                     branch_id = GetBranch("Enter branch id: ");
-                    bool save = SaveData(SAVE_PATH);
+                    bool save = SaveData(SAVE_PATH, SAVE_FILE);
                     if (save)
                     {
                         Console.WriteLine("[ OK ]: Save successful");
@@ -98,15 +109,15 @@ namespace console_client
             return branch_id;
         }
        
-        public static bool SaveData(string path)
+        public static bool SaveData(string dirPath, string savePath)
         {
             try
             {
-                if (!Directory.Exists(path + "\\data"))
-                    Directory.CreateDirectory(path + "\\data");
+                if (!Directory.Exists(dirPath))
+                    Directory.CreateDirectory(dirPath);
                 
 
-                using (StreamWriter sw = new StreamWriter(path + "\\data\\settings.txt", false))
+                using (StreamWriter sw = new StreamWriter(savePath, false))
                 {
                     sw.WriteLine($"branch_id:{branch_id}");
                     sw.Close();
@@ -117,6 +128,20 @@ namespace console_client
             {
                 return false;
             }
+
+        }
+
+        public static bool LoadData(string saveFile)
+        {
+            string[] lines = File.ReadAllLines(saveFile);
+
+            // Parsing branch_id
+            bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out branch_id);
+
+            if (parse)
+                return true;
+            else
+                return false;
 
         }
         
