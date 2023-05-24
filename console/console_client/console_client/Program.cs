@@ -11,19 +11,22 @@ namespace console_client
     {
         public const ConsoleColor HIGHLIGHT_COLOR = ConsoleColor.White;
         public const ConsoleColor DEFAULT_COLOR = ConsoleColor.Gray;
+
+        public static string SAVE_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        public static int branch_id = 0;
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
-
             const string admin_token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
 
             int checkKeyVal = -2;
             int highlighted = 0;
 
 
-            del[] menuFuncs = new del[] { Atm, Empl };
+            del[] menuFuncs = new del[] { Atm, Empl, Settings };
 
-            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Employe" }, menuFuncs);
+            Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Settings" }, menuFuncs);
 
             while (true)
             {
@@ -52,6 +55,71 @@ namespace console_client
             Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
             menu.Show();
         }
+
+        static async Task Settings()
+        {
+            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Branch id", "Back to Main menu");
+
+            int selected = settingsMenu.ShowInt();
+
+            switch (selected)
+            {
+                default:
+                    Console.WriteLine("[ ERROR ]: Unexpected error");
+                    break;
+                case 0:
+                    branch_id = GetBranch("Enter branch id: ");
+                    bool save = SaveData(SAVE_PATH);
+                    if (save)
+                    {
+                        Console.WriteLine("[ OK ]: Save successful");
+                        Console.WriteLine("Press key to continue ...");
+                        Console.ReadKey();
+                    }
+                        
+                    break;
+                case 1:
+                    break;
+
+            }
+
+        }
+
+        public static int GetBranch(string dialog)
+        {
+            Console.Write(dialog);
+
+            int branch_id;
+            bool parse = int.TryParse(Console.ReadLine(), out branch_id);
+
+            if (!parse)
+                return -1;
+
+            return branch_id;
+        }
+       
+        public static bool SaveData(string path)
+        {
+            try
+            {
+                if (!Directory.Exists(path + "\\data"))
+                    Directory.CreateDirectory(path + "\\data");
+                
+
+                using (StreamWriter sw = new StreamWriter(path + "\\data\\settings.txt", false))
+                {
+                    sw.WriteLine($"branch_id:{branch_id}");
+                    sw.Close();
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+        
 
         static async Task GetEmpl()
         {
