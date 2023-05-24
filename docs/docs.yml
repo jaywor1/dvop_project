@@ -17,8 +17,6 @@ tags:
     description: Clients of bank
   - name: Employe
     description: Employes of bank
-  - name: Branch
-    description: Branches of bank
     
     
 security:
@@ -305,72 +303,13 @@ paths:
         "403":
           description: Forbidden
         "404":
-          description: Employe not found
-          
-  /branch:
-    get:
-      tags:
-        - Branch
-      summary: Get branches
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                 $ref: "#/components/schemas/Branches"
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-        "404":
           description: User not found
-          
-    put:
-      tags:
-        - Branch
-      summary: Updates branch
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Branch"
-      responses:
-        "200":
-          description: Success
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-          
-  /branch/{branch_id}:
-    delete:
-      tags:
-        - Branch
-      summary: Deletes branch via ID
-      parameters:
-        - name: branch_id
-          in: path
-          description: Identification of branch
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: Success
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-        "404":
-          description: Branch not found
-          
-  /branch/{branch_id}/employees:
+   
+  /employe/{branch_id}:       
     get:
       tags:
-        - Branch
-      summary: Get employees from branch
+        - Employe
+      summary: Get employes via branch id
       parameters:
         - name: branch_id
           in: path
@@ -391,7 +330,7 @@ paths:
         "403":
           description: Forbidden
         "404":
-          description: Branch not found
+          description: User not found
                  
 components:
   securitySchemes:
@@ -527,44 +466,4 @@ components:
           present:
             type: boolean
             example: false
-            
-    Branch:
-      type: object
-      properties:
-        branch_id:
-          type: integer
-          format: int64
-          example: 5
-        open_hours:
-          type: string
-          format: time
-          example: 7:00:00
-        close_hours:
-          type: string
-          format: time
-          example: 19:00:00
-        address:
-          type: string
-          example: "5253 Lankershim Blvd, Los Angeles, CA 91601, USA"
-          
-    Branches:
-      type: array
-      items:
-        type: object
-        properties:
-          branch_id:
-            type: integer
-            format: int64
-            example: 5
-          open_hours:
-            type: string
-            format: time
-            example: 7:00:00
-          close_hours:
-            type: string
-            format: time
-            example: 19:00:00
-          address:
-            type: string
-            example: "5253 Lankershim Blvd, Los Angeles, CA 91601, USA"
           
