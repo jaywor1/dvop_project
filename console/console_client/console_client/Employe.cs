@@ -16,13 +16,13 @@ namespace console_client
 
         public bool present { get; set; }
 
-        public Employe(int branch_id, string name, string position)
+        public Employe(int employe_id, int branch_id, string name, string position, bool present)
         {
-            this.employe_id = 0;
+            this.employe_id = employe_id;
             this.branch_id = branch_id;
             this.name = name;
             this.position = position;
-            this.present = true;
+            this.present = present;
         }
     }
 }
