@@ -86,4 +86,32 @@ router.get('/branch/:branch_id/employes', checkAdmin, async (req, res) => {
 
 })
 
+router.put('/branch/:branch_id', express.json(), async (req, res) => {
+    console.log("PUT /branch/" + req.params.branch_id)
+
+    reqBody = req.body;
+
+    params = [req.params.branch_id, req.body.open_hours, req.body.close_hours, req.body.address]
+
+    for (par of params) {
+        if (par == undefined)
+            return res.status(400).json("Invalid Request")
+    }
+
+    const client = await public.connect();
+
+    client.query('UPDATE branch SET open_hours = $2, close_hours = $3, address = $4 WHERE branch_id = $1', params, (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            res.status(400).send("Failure")
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+
+})
+
 module.exports = router;
