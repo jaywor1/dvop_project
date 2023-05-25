@@ -17,6 +17,8 @@ tags:
     description: Clients of bank
   - name: Employe
     description: Employes of bank
+  - name: Branch
+    description: Branches of bank
     
     
 security:
@@ -331,7 +333,96 @@ paths:
           description: Forbidden
         "404":
           description: User not found
-                 
+          
+  /branch:
+    get:
+      tags:
+        - Branch
+      summary: List of branches
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+          
+    put:
+      tags:
+        - Branch
+      summary: Creates branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchPut"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+   
+  /branch/{branch_id}:
+    delete:
+      tags:
+        - Branch
+      summary: Deletes branch via ID
+      parameters:
+        - name: branch_id
+          in: path
+          description: Identification of branch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "404":
+          description: Branch not found
+          
+    put:
+      tags:
+        - Branch
+      summary: Updates branch
+      parameters:
+        - name: branch_id
+          in: path
+          description: Identification of branch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchPut"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+    
+        
 components:
   securitySchemes:
     ApiKeyAuth:       
@@ -467,3 +558,51 @@ components:
             type: boolean
             example: false
           
+    Branch:
+      type: object
+      properties:
+        branch_id:
+          type: integer
+          format: int64
+          example: 3
+        open_hours:
+          type: string
+          example: "06:00:00"
+        close_hours:
+          type: string
+          example: "23:00:00"
+        address:
+          type: string
+          example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
+          
+    BranchPut:
+      type: object
+      properties:
+        open_hours:
+          type: string
+          example: "06:00:00"
+        close_hours:
+          type: string
+          example: "23:00:00"
+        address:
+          type: string
+          example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
+          
+    Branches:
+      type: array
+      items:
+        type: object
+        properties:
+          branch_id:
+            type: integer
+            format: int64
+            example: 3
+          open_hours:
+            type: string
+            example: "06:00:00"
+          close_hours:
+            type: string
+            example: "23:00:00"
+          address:
+            type: string
+            example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
