@@ -18,6 +18,7 @@ router.get('/branch', checkAdmin, async (req, res) => {
     client.query('SELECT * FROM branch', (err, result) => {
         if (err) {
             console.log(err.stack)
+            res.status(500).send("Server error")
             client.release();
         }
         else {
