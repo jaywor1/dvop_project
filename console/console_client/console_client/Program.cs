@@ -54,7 +54,7 @@ namespace console_client
 
         static async Task Settings()
         {
-            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Back to Main menu");
+            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Set token", "Back to Main menu");
 
             int selected = settingsMenu.ShowInt();
 
@@ -87,6 +87,11 @@ namespace console_client
                     SaveData(SAVE_PATH, SAVE_FILE);
                     break;
                 case 2:
+                    Console.Write("Enter your token: ");
+                    token = Console.ReadLine();
+                    SaveData(SAVE_PATH, SAVE_FILE);
+                    break;
+                case 3:
                     break;
 
             }
@@ -135,7 +140,7 @@ namespace console_client
                     break;
                 case 0:
                     int stock = GetIntInput("Enter new stock: ", selectedATM.stock);
-                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address, selectedATM.error));
+                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address));
                     break;
                 case 1:
                     break;
@@ -175,7 +180,7 @@ namespace console_client
             Console.Write("Address: ");
             string address = Console.ReadLine();
 
-            ATM atm = new ATM(0, g_branch_id, stock, address, false);
+            ATM atm = new ATM(0, g_branch_id, stock, address);
 
             await PutAtm(atm);
 
@@ -221,6 +226,7 @@ namespace console_client
                 {
                     sw.WriteLine($"branch_id:{g_branch_id}");
                     sw.WriteLine($"limit:{g_limit}");
+                    sw.WriteLine($"token:{token}");
                     sw.Close();
                 }
                 return true;
@@ -236,7 +242,7 @@ namespace console_client
         {
             string[] lines = File.ReadAllLines(saveFile);
 
-            if(lines.Length != 2)
+            if(lines.Length != 3)
             {
                 SaveData(SAVE_PATH, SAVE_FILE);
                 return true;
@@ -253,6 +259,8 @@ namespace console_client
             if (!parse)
                 return false;
 
+            token = lines[2].Substring("token:".Length);
+
             return true;
 
         }
@@ -265,7 +273,7 @@ namespace console_client
             string[] names = new string[employes.Length];
             for (int i = 0; i < names.Length; i++)
             {
-                names[i] = employes[i].name;
+                names[i] = employes[i].name + ", " + employes[i].position;
             }
 
             BasicMenu listEmpl = new BasicMenu("Employees", HIGHLIGHT_COLOR, DEFAULT_COLOR, names);
@@ -377,7 +385,7 @@ namespace console_client
                     break;
                 case 2:
                     int stock = GetIntInput("Enter new stock: ", selectedATM.stock);
-                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address, selectedATM.error));
+                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address));
                     break;
 
 
@@ -543,7 +551,7 @@ namespace console_client
             int stock = GetIntInput("stock: ", selectedATM.stock);
             string address = GetStringInput("address: ", selectedATM.address);
 
-            return new ATM(selectedATM.atm_id, g_branch_id, stock, address, false);
+            return new ATM(selectedATM.atm_id, g_branch_id, stock, address);
 
         }
         public static async Task<Employe[]> GetEmployees()
