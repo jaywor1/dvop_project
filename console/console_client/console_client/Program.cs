@@ -19,6 +19,7 @@ namespace console_client
         public static string SAVE_FILE = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data\\settings.txt";
 
         public static int g_branch_id = 1;
+        public static int g_limit = 20000;
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
@@ -72,7 +73,7 @@ namespace console_client
 
         static async Task Settings()
         {
-            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", "Back to Main menu");
+            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Back to Main menu");
 
             int selected = settingsMenu.ShowInt();
 
@@ -93,6 +94,18 @@ namespace console_client
                         
                     break;
                 case 1:
+                    Console.Write("Enter new limit: ");
+                    bool parse = int.TryParse(Console.ReadLine(), out g_limit);
+                    if (!parse)
+                    {
+                        Console.WriteLine("[ ERROR ]: Failed to parse quiting ...");
+                        Console.WriteLine("Press any key to continue ...");
+                        Console.ReadKey();
+                        break;
+                    }
+                    SaveData(SAVE_PATH, SAVE_FILE);
+                    break;
+                case 2:
                     break;
 
             }
@@ -152,6 +165,7 @@ namespace console_client
                 using (StreamWriter sw = new StreamWriter(savePath, false))
                 {
                     sw.WriteLine($"branch_id:{g_branch_id}");
+                    sw.WriteLine($"limit:{g_limit}");
                     sw.Close();
                 }
                 return true;
@@ -167,13 +181,24 @@ namespace console_client
         {
             string[] lines = File.ReadAllLines(saveFile);
 
+            if(lines.Length != 2)
+            {
+                SaveData(SAVE_PATH, SAVE_FILE);
+                return true;
+            }
+
             // Parsing branch_id
             bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out g_branch_id);
 
-            if (parse)
-                return true;
-            else
+            if (!parse)
                 return false;
+
+            parse = int.TryParse(lines[1].Substring("limit:".Length), out g_limit);
+
+            if (!parse)
+                return false;
+
+            return true;
 
         }
 
