@@ -20,7 +20,8 @@ namespace console_client
 
         public static int g_branch_id = 1;
         public static int g_limit = 20000;
-        public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
+        public static string token = "";
+        public static string api_path = "/api/v1/";
         static void Main(string[] args)
         {
             if (LoadData(SAVE_FILE))
@@ -580,7 +581,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"employe/{g_branch_id}?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}employe/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -604,7 +605,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"branch/?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}branch/?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -629,7 +630,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"branch/{branch.branch_id}?api_key={token}", branch);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}branch/{branch.branch_id}?api_key={token}", branch);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -655,7 +656,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"atm/{atm.atm_id}?api_key={token}", atm);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}atm/{atm.atm_id}?api_key={token}", atm);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -680,7 +681,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("employe?api_key=" + token, employe);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}employe?api_key=" + token, employe);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -700,7 +701,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("branch?api_key=" + token, branch);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}branch?api_key=" + token, branch);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -721,7 +722,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"employe/{id}?api_key={token}", employe);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}employe/{id}?api_key={token}", employe);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -743,7 +744,7 @@ namespace console_client
                 string id = employe.employe_id.ToString();
 
 
-                HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
+                HttpResponseMessage res = await client.DeleteAsync($"{api_path}employe/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -763,7 +764,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage res = await client.DeleteAsync($"branch/{id}?api_key={token}");
+                HttpResponseMessage res = await client.DeleteAsync($"{api_path}branch/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -785,7 +786,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"atm/{g_branch_id}?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}atm/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -811,7 +812,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key=" + token, atm);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}atm?api_key={token}", atm);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -834,7 +835,7 @@ namespace console_client
                 if (Console.ReadLine() == "yes")
                 {
 
-                    HttpResponseMessage res = await client.DeleteAsync($"atm/{atm.atm_id}?api_key={token}");
+                    HttpResponseMessage res = await client.DeleteAsync($"{api_path}atm/{atm.atm_id}?api_key={token}");
 
                     if (res.IsSuccessStatusCode)
                     {
