@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Net.Http.Json;
 
 namespace console_client
 {
@@ -17,7 +18,7 @@ namespace console_client
         public static string SAVE_PATH = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data";
         public static string SAVE_FILE = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\data\\settings.txt";
 
-        public static int branch_id = 1;
+        public static int g_branch_id = 1;
         public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
         static void Main(string[] args)
         {
@@ -29,9 +30,9 @@ namespace console_client
                 int highlighted = 0;
 
 
-                del[] menuFuncs = new del[] { Atm, Empl, Settings };
+                del[] menuFuncs = new del[] { Atm, ManageEmpl, ManageBranches, Settings };
 
-                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Settings" }, menuFuncs);
+                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Manage Branches", "Settings" }, menuFuncs);
 
                 while (true)
                 {
@@ -63,7 +64,7 @@ namespace console_client
 
         static async Task Empl()
         {
-            del[] empl_funcs = new del[] { GetEmpl, PutEmpl, DeleteEmpl, BackToMenu };
+            del[] empl_funcs = new del[] { GetEmpl, Empl, DeleteEmpl, BackToMenu };
 
             Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
             menu.Show();
@@ -71,7 +72,7 @@ namespace console_client
 
         static async Task Settings()
         {
-            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {branch_id})", "Back to Main menu");
+            BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", "Back to Main menu");
 
             int selected = settingsMenu.ShowInt();
 
@@ -81,7 +82,7 @@ namespace console_client
                     Console.WriteLine("[ ERROR ]: Unexpected error");
                     break;
                 case 0:
-                    branch_id = GetBranch("Enter branch id: ");
+                    g_branch_id = GetBranch("Enter branch id: ");
                     bool save = SaveData(SAVE_PATH, SAVE_FILE);
                     if (save)
                     {
@@ -121,7 +122,7 @@ namespace console_client
 
                 using (StreamWriter sw = new StreamWriter(savePath, false))
                 {
-                    sw.WriteLine($"branch_id:{branch_id}");
+                    sw.WriteLine($"branch_id:{g_branch_id}");
                     sw.Close();
                 }
                 return true;
@@ -138,7 +139,7 @@ namespace console_client
             string[] lines = File.ReadAllLines(saveFile);
 
             // Parsing branch_id
-            bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out branch_id);
+            bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out g_branch_id);
 
             if (parse)
                 return true;
@@ -146,8 +147,259 @@ namespace console_client
                 return false;
 
         }
-        
 
+        static async Task ManageEmpl()
+        {
+            Employe[] employes = await GetEmployees();
+
+
+            string[] names = new string[employes.Length];
+            for (int i = 0; i < names.Length; i++)
+            {
+                names[i] = employes[i].name;
+            }
+
+            BasicMenu listEmpl = new BasicMenu("Employees", HIGHLIGHT_COLOR, DEFAULT_COLOR, names);
+
+            int selectedId = employes[listEmpl.ShowInt()].employe_id;
+
+            BasicMenu emplOptions = new BasicMenu("Employee options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify employee", "Delete employee", "Back to menu");
+
+            switch (emplOptions.ShowInt())
+            {
+                default:
+                    break;
+                case 0:
+                    Console.WriteLine("YOU CAN PRESS ENTER FOR DEFAULT");
+                    Employe empl = CreateEmpl(employes, selectedId);
+                    await UpdateEmpl(empl);
+                    break;
+
+
+            }
+        }
+
+        static async Task ManageBranches()
+        {
+            Branch[] branches = await GetBranches();
+
+
+
+            BasicMenu listBranch = new BasicMenu("Branches", HIGHLIGHT_COLOR, DEFAULT_COLOR, BranchToString(branches));
+
+            Branch selectedBranch = branches[listBranch.ShowInt()];
+
+            BasicMenu branchOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify branch", "Delete branch", "Back to menu");
+
+            switch (branchOptions.ShowInt())
+            {
+                default:
+                    break;
+                case 0:
+                    Console.WriteLine("YOU CAN PRESS ENTER FOR DEFAULT");
+                    Branch branch = CreateBranch(branches, selectedBranch.branch_id);
+                    await UpdateBranch(branch);
+                    break;
+                case 1:
+                    Console.WriteLine($"Do you want to delete branch {selectedBranch.address}? (Type 'yes' to confirm)");
+                    string ans = Console.ReadLine();
+                    if (ans == "yes")
+                    {
+                        DeleteBranch(selectedBranch.branch_id);
+                        Console.WriteLine($"Branch {selectedBranch.address} was deleted\nPress any key to continue...");
+                        Console.ReadKey();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Branch wasn't deleted");
+                    }
+                    break;
+                case 2:
+                    break;
+
+
+            }
+        }
+
+        public static string[] BranchToString(Branch[] branches)
+        {
+            string[] arr = new string[branches.Length];
+
+            int lId = branches.Max(x => x.branch_id.ToString().Length);
+            int lOpenHours = branches.Max(x => x.open_hours.Length);
+            int lCloseHours = branches.Max(x => x.close_hours.Length);
+            int lAddress = branches.Max(x => x.address.Length);
+
+
+            for (int i = 0; i < branches.Length; i++)
+            {
+                arr[i] = String.Format($"| {{0,{lId}}} | {{1,{lAddress}}} | {{2,{lOpenHours}}} | {{3,{lCloseHours}}} |", branches[i].branch_id, branches[i].address, branches[i].open_hours, branches[i].close_hours);
+            }
+            return arr;
+        }
+
+        public static Employe CreateEmpl(Employe[] employes, int id)
+        {
+            Console.Write("branch_id:");
+
+            int branch_id;
+            string iBranch = Console.ReadLine();
+            if (iBranch == "")
+                branch_id = employes.SingleOrDefault(x => x.employe_id == id).branch_id;
+            else
+            {
+                bool parse = int.TryParse(iBranch, out branch_id);
+                if (!parse)
+                {
+                    Console.WriteLine("[ ERROR ]: Parsing error, expecting integer");
+                    CreateEmpl(employes, id);
+                }
+
+            }
+
+            Console.Write("name:");
+            string name = "";
+            string iName = Console.ReadLine();
+            if (iName == "")
+                name = employes.SingleOrDefault(x => x.employe_id == id).name;
+            else
+                name = iName;
+
+            Console.Write("position:");
+            string position = "";
+            string iPosition = Console.ReadLine();
+            if (iPosition == "")
+                position = employes.SingleOrDefault(x => x.employe_id == id).position;
+            else
+                position = iPosition;
+
+            Console.Write("present (y/n): ");
+            bool present = true;
+            string iPresent = Console.ReadLine();
+            if (iPresent == "")
+                present = employes.SingleOrDefault(x => x.employe_id == id).present;
+            else
+            {
+                if(iPresent == "y")
+                {
+                    present = true;
+                }
+                else if(iPresent == "n")
+                {
+                    present = false;
+                }
+                else
+                {
+                    Console.WriteLine("[ ERROR ]: User is dumbass");
+                    Employe empl = CreateEmpl(employes, id);
+                }
+               
+            }
+
+            return new Employe(employes.SingleOrDefault(x => x.employe_id == id).employe_id, branch_id, name, position, present);
+
+        }
+
+        public static string GetStringBranchInput(string dialog, string defaultParameter)
+        {
+            Console.Write(dialog);
+            string s = "";
+            string iS = Console.ReadLine();
+            if (iS == "")
+                s = defaultParameter;
+            else
+                s = iS;
+
+            return s;
+        }
+
+        public static Branch CreateBranch(Branch[] branches, int id)
+        {
+
+            Branch selectedBranch = branches.SingleOrDefault(x => x.branch_id == id);
+
+            string address = GetStringBranchInput("address: ", selectedBranch.address);
+            string open_hours = GetStringBranchInput("format (HH:MM:SS)\nopen_hours: ", selectedBranch.open_hours);
+            string close_hours = GetStringBranchInput("format (HH:MM:SS)\nclose_hours: ", selectedBranch.close_hours);
+
+            
+
+            return new Branch(selectedBranch.branch_id, open_hours, close_hours, address);
+
+        }
+        public static async Task<Employe[]> GetEmployees()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.WriteLine("GET");
+                HttpResponseMessage response = await client.GetAsync($"employe/{g_branch_id}?api_key={token}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+                    Employe[] employes = JsonSerializer.Deserialize<Employe[]>(json);
+
+                    return employes;
+
+                }
+            }
+            return null;
+        }
+
+        public static async Task<Branch[]> GetBranches()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.WriteLine("GET");
+                HttpResponseMessage response = await client.GetAsync($"branch/?api_key={token}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+
+                    Branch[] branches = JsonSerializer.Deserialize<Branch[]>(json);
+
+                    return branches;
+
+                }
+            }
+            return null;
+        }
+
+        static async Task UpdateBranch(Branch branch)
+        
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                HttpResponseMessage res = await client.PutAsJsonAsync($"branch/{branch.branch_id}?api_key={token}", branch);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("PUT " + branch.address + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("FAILED TO CHANGE " + branch.address + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
         static async Task GetEmpl()
         {
             using (var client = new HttpClient())
@@ -157,7 +409,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"employe/{branch_id}?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"employe/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -191,7 +443,7 @@ namespace console_client
                 }
             }
         }
-        static async Task PutEmpl()
+        static async Task PutEmpl(Employe employe)
         {
             using (var client = new HttpClient())
             {
@@ -199,21 +451,51 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Console.Write("Enter name: ");
-                string name = Console.ReadLine();
-                Console.Write("Enter branch ID: ");
-                string branch_id = Console.ReadLine();
-                Console.Write("Enter position: ");
-                string position = Console.ReadLine();
+                //Console.Write("Enter name: ");
+                //string name = Console.ReadLine();
+                //Console.Write("Enter branch ID: ");
+                //string branch_id = Console.ReadLine();
+                //Console.Write("Enter position: ");
+                //string position = Console.ReadLine();
 
-                Employe employe = new Employe(int.Parse(branch_id), name, position);
+                //Employe employe = new Employe(int.Parse(branch_id), name, position);
 
 
                 HttpResponseMessage res = await client.PutAsJsonAsync("employe?api_key=" + token, employe);
+               
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("PUT " + employe.name + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
+        static async Task UpdateEmpl(Employe employe)
+        {
+            int id = employe.employe_id;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //Console.Write("Enter name: ");
+                //string name = Console.ReadLine();
+                //Console.Write("Enter branch ID: ");
+                //string branch_id = Console.ReadLine();
+                //Console.Write("Enter position: ");
+                //string position = Console.ReadLine();
+
+                //Employe employe = new Employe(int.Parse(branch_id), name, position);
+
+
+                HttpResponseMessage res = await client.PutAsJsonAsync($"employe/{id}?api_key={token}", employe);
 
                 if (res.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Created " + employe.name + "\nPress ENTER to continue...");
+                    Console.WriteLine("PUT " + employe.name + "\nPress ENTER to continue...");
                     Console.ReadLine();
                 }
 
@@ -233,6 +515,26 @@ namespace console_client
 
 
                 HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+
+                }
+
+            }
+        }
+
+        static async Task DeleteBranch(int id)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage res = await client.DeleteAsync($"branch/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
