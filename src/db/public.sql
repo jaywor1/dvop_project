@@ -3,13 +3,6 @@
     DROP TABLE IF EXISTS employes CASCADE;
     DROP TABLE IF EXISTS withdraws CASCADE;
 
-    CREATE TABLE atms (
-        atm_id SERIAL NOT NULL,
-        PRIMARY KEY(atm_id),
-        stock INT NOT NULL,
-        address TEXT NOT NULL,
-        error BOOLEAN NOT NULL
-    );
 
     CREATE TABLE branch (
         branch_id SERIAL NOT NULL,
@@ -17,6 +10,16 @@
         open_hours TIME NOT NULL,
         close_hours TIME NOT NULL,
         address TEXT NOT NULL
+    );
+
+    CREATE TABLE atms (
+        atm_id SERIAL NOT NULL,
+        PRIMARY KEY(atm_id),
+		branch_id INT,
+        FOREIGN KEY (branch_id) REFERENCES branch (branch_id),
+        stock INT NOT NULL,
+        address TEXT NOT NULL,
+        error BOOLEAN NOT NULL
     );
 
     CREATE TABLE employes(
@@ -34,13 +37,7 @@
         amount INT NOT NULL
     );
 
-    INSERT INTO atms (stock, address, error)
-    VALUES
-        (20000, 'Test 1', 'f'),(21000, 'Test 1', 'f'),(23400, 'Test 1', 'f'),(20940, 'Test 1', 'f'),(15000, 'Test 2', 't'),(17500, 'Test 34', 't');
 
-    INSERT INTO withdraws(atm_id, amount)
-    VALUES
-        (2, 500),(2,300),(1,500),(3,300),(1,1000);
 
 
     INSERT INTO branch (open_hours, close_hours, address)
@@ -48,6 +45,10 @@
         ('06:30:00', '17:30:00', 'Preslova 25'),
         ('07:30:00', '19:30:00', 'Revolucni 49'),
         ('06:00:00', '21:30:00', 'Matousova 13');
+		
+		INSERT INTO atms (branch_id, stock, address, error)
+    VALUES
+        (1, 20000, 'Test 1', 'f'),(1, 21000, 'Test 1', 'f'),(2, 23400, 'Test 1', 'f'),(1, 20940, 'Test 1', 'f'),(3, 15000, 'Test 2', 't'),(1, 17500, 'Test 34', 't');
 
     INSERT INTO employes (branch_id, name, position, present)
         VALUES
