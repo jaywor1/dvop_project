@@ -4,8 +4,14 @@ const router = express.Router()
 
 const public = require('../db/public')
 
+const checkAdmin = (req, res, next) => {
+    if (req.admin == false) {
+        return res.status(401).send("Forbiden")
+    }
+    next()
+}
 
-router.get('/atm', async (req, res) => {
+router.get('/atm', checkAdmin, async (req, res) => {
     console.log("GET /atm")
     const client = await public.connect();
     try {
@@ -16,7 +22,7 @@ router.get('/atm', async (req, res) => {
     }
 })
 
-router.put('/atm', express.json(), async (req, res) => {
+router.put('/atm', checkAdmin, express.json(), async (req, res) => {
     console.log("PUT /atm")
     const client = await public.connect()
 
@@ -42,7 +48,7 @@ router.put('/atm', express.json(), async (req, res) => {
     })
 })
 
-router.put('/atm/:atm_id', express.json(), async (req, res) => {
+router.put('/atm/:atm_id', checkAdmin, express.json(), async (req, res) => {
     console.log("PUT /atm/" + req.params.atm_id)
     const client = await public.connect()
 
@@ -67,7 +73,7 @@ router.put('/atm/:atm_id', express.json(), async (req, res) => {
     })
 })
 
-router.delete('/atm/:atm_id', async (req, res) => {
+router.delete('/atm/:atm_id', checkAdmin, async (req, res) => {
     console.log("DELETE /atm/" + req.params.atm_id)
     const client = await public.connect();
 
@@ -85,7 +91,7 @@ router.delete('/atm/:atm_id', async (req, res) => {
 
 })
 
-router.get('/atm/:branch_id', async (req, res) => {
+router.get('/atm/:branch_id', checkAdmin, async (req, res) => {
     console.log("GET /atm/" + req.params.branch_id)
     const client = await public.connect();
 
@@ -102,7 +108,7 @@ router.get('/atm/:branch_id', async (req, res) => {
 
 })
 
-router.post('/atm/error', express.json(), async (req, res) => {
+router.post('/atm/error', checkAdmin, express.json(), async (req, res) => {
     console.log("POST /atm/error")
 
     reqBody = req.body;
@@ -119,7 +125,7 @@ router.post('/atm/error', express.json(), async (req, res) => {
     }
 })
 
-router.post('/atm/refil', express.json(), async (req, res) => {
+router.post('/atm/refil', checkAdmin, express.json(), async (req, res) => {
     console.log("POST /atm/refil")
 
     reqBody = req.body;
@@ -135,7 +141,7 @@ router.post('/atm/refil', express.json(), async (req, res) => {
     }
 })
 
-router.patch('/atm/refil', express.json(), async (req, res) => {
+router.patch('/atm/refil', checkAdmin, express.json(), async (req, res) => {
     console.log("PATCH /atm/refil")
 
     reqBody = req.body;
