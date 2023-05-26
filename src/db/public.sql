@@ -18,8 +18,7 @@
 		branch_id INT,
         FOREIGN KEY (branch_id) REFERENCES branch (branch_id),
         stock INT NOT NULL,
-        address TEXT NOT NULL,
-        error BOOLEAN NOT NULL
+        address TEXT NOT NULL
     );
 
     CREATE TABLE employes(
@@ -46,9 +45,9 @@
         ('07:30:00', '19:30:00', 'Revolucni 49'),
         ('06:00:00', '21:30:00', 'Matousova 13');
 		
-		INSERT INTO atms (branch_id, stock, address, error)
+		INSERT INTO atms (branch_id, stock, address)
     VALUES
-        (1, 20000, 'Test 1', 'f'),(1, 21000, 'Test 1', 'f'),(2, 23400, 'Test 1', 'f'),(1, 20940, 'Test 1', 'f'),(3, 15000, 'Test 2', 't'),(1, 17500, 'Test 34', 't');
+        (1, 20000, 'Test 1'),(1, 21000, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(1, 20940, 'Test 1'),(3, 15000, 'Test 2'),(1, 17500, 'Test 34');
 
     INSERT INTO employes (branch_id, name, position, present)
         VALUES
