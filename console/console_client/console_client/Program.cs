@@ -750,8 +750,7 @@ namespace console_client
 
                 if (res.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
-                    Console.ReadLine();
+                    Console.WriteLine("Deleted " + id);
 
                 }
 
