@@ -1,0 +1,462 @@
+openapi: 3.0.3
+info:
+  title: Bank API
+  description: |-
+    smth
+    
+    Some useful links:
+    - [Github repo](https://github.com/jaywor1/dvop_project)
+
+  version: 1.0.0
+
+
+tags:
+  - name: ATM
+    description: ATM machines
+  - name: Employe
+    description: Employes of bank
+  - name: Branch
+    description: Branches of bank
+    
+    
+security:
+  - ApiKeyAuth: []
+    
+paths:
+  /atm:
+    get:
+      tags:
+        - ATM
+      summary: Returns all atms
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    
+    post:
+      tags:
+        - ATM
+      summary: Creates atm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Atm"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Atm"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+      
+      
+  /atm/refil:
+    get:
+      tags:
+        - ATM
+      summary: Returns atms that need refil
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  
+  /atm/error:
+    get:
+      tags:
+        - ATM
+      summary: Returns atms with errors
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Atms"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  
+  /atm/{atm_id}:
+    get:
+      tags:
+        - ATM
+      summary: Select atm via id
+      parameters:
+        - name: atm_id
+          in: path
+          description: Identification of ATM
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Atm"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: ATM not found
+    
+    delete:
+      tags: 
+        - ATM
+      summary: Deletes atm via id
+      parameters:
+        - name: atm_id
+          in: path
+          description: Identification of ATM
+          required: true
+          schema:
+            type: integer
+            format: int64  
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: ATM not found
+          
+  /employe:
+    get:
+      tags:
+        - Employe
+      summary: Get employes via ID
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Employes"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+          
+    put:
+      tags:
+        - Employe
+      summary: Updates employe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Employe"
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+          
+  /employe/{employe_id}:
+    delete:
+      tags:
+        - Employe
+      summary: Deletes employe via ID
+      parameters:
+        - name: employe_id
+          in: path
+          description: Identification of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+   
+  /employe/{branch_id}:       
+    get:
+      tags:
+        - Employe
+      summary: Get employes via branch id
+      parameters:
+        - name: branch_id
+          in: path
+          description: Identification of branch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/Employes"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+          
+  /branch:
+    get:
+      tags:
+        - Branch
+      summary: List of branches
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+          
+    put:
+      tags:
+        - Branch
+      summary: Creates branch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchPut"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+   
+  /branch/{branch_id}:
+    delete:
+      tags:
+        - Branch
+      summary: Deletes branch via ID
+      parameters:
+        - name: branch_id
+          in: path
+          description: Identification of branch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "404":
+          description: Branch not found
+          
+    put:
+      tags:
+        - Branch
+      summary: Updates branch
+      parameters:
+        - name: branch_id
+          in: path
+          description: Identification of branch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchPut"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branches"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+    
+        
+components:
+  securitySchemes:
+    ApiKeyAuth:       
+      type: apiKey
+      in: query
+      name: api_key
+  schemas:
+    Atms:
+      type: array
+      items:
+        type: object
+        properties:
+          atm_id:
+            type: integer
+            format: int64
+            example: 13
+          stock:
+            type: integer
+            format: int64
+            example: 20000
+          withdraw_log:
+            type: array
+            items:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  format: int64
+                  example: 500
+                user_id:
+                  type: integer
+                  format: int64
+                  example: 12
+          error_log:
+            type: string
+            example: "Windows update"
+            
+    Atm:
+      type: object
+      properties:
+        atm_id:
+          type: integer
+          format: int64
+          example: 13
+        stock:
+            type: integer
+            format: int64
+            example: 20000
+        withdraw_log:
+          type: array
+          items:
+            type: object
+            properties:
+              amount:
+                type: integer
+                format: int64
+                example: 500
+              user_id:
+                type: integer
+                format: int64
+                example: 12
+        error_log:
+          type: string
+          example: "Windows update"
+            
+    Employe:
+      type: object
+      properties:
+        employe_id:
+          type: integer
+          format: int64
+          example: 17
+        branch_id:
+          type: integer
+          format: int64
+          example: 3
+        name:
+          type: string
+          example: "Cliff Burton"
+        position:
+          type: string
+          example: "CEO"
+        present:
+          type: boolean
+          example: false
+          
+    Employes:
+      type: array
+      items:
+        type: object
+        properties:
+          employe_id:
+            type: integer
+            format: int64
+            example: 17
+          branch_id:
+            type: integer
+            format: int64
+            example: 3
+          name:
+            type: string
+            example: "Cliff Burton"
+          position:
+            type: string
+            example: "CEO"
+          present:
+            type: boolean
+            example: false
+          
+    BranchPut:
+      type: object
+      properties:
+        open_hours:
+          type: string
+          example: "06:00:00"
+        close_hours:
+          type: string
+          example: "23:00:00"
+        address:
+          type: string
+          example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
+          
+    Branches:
+      type: array
+      items:
+        type: object
+        properties:
+          branch_id:
+            type: integer
+            format: int64
+            example: 3
+          open_hours:
+            type: string
+            example: "06:00:00"
+          close_hours:
+            type: string
+            example: "23:00:00"
+          address:
+            type: string
+            example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
