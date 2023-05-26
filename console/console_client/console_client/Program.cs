@@ -30,9 +30,9 @@ namespace console_client
                 int highlighted = 0;
 
 
-                del[] menuFuncs = new del[] { Atm, ManageEmpl, ManageBranches, CreateEmplMenu, CreateBranchMenu, Settings };
+                del[] menuFuncs = new del[] { ManageATM, ManageEmpl, ManageBranches, CreateEmplMenu, CreateBranchMenu, Settings };
 
-                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Manage Branches", "Create employee", "Create branch", "Settings" }, menuFuncs);
+                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Manage ATM", "Manage Employees", "Manage Branches", "Create employee", "Create branch", "Settings" }, menuFuncs);
 
                 while (true)
                 {
@@ -51,16 +51,16 @@ namespace console_client
         }
 
 
-        static async Task Atm()
-        {
-            del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError, BackToMenu };
+        //static async Task Atm()
+        //{
+        //    del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError, BackToMenu };
 
 
-            Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors", "Back to Main menu" }, atm_funcs);
-            menu.Show();
+        //    Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors", "Back to Main menu" }, atm_funcs);
+        //    menu.Show();
 
 
-        }
+        //}
 
         //static async Task Empl()
         //{
@@ -265,6 +265,45 @@ namespace console_client
             }
         }
 
+        static async Task ManageATM()
+        {
+            ATM[] atms = await GetATM();
+
+            if(atms.Length == 0)
+            {
+                Console.WriteLine("This branch doesn't have any ATMs");
+                Console.WriteLine("Press any key to continue ...");
+                Console.ReadLine();
+                return;
+            }
+
+            BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atms));
+
+            ATM selectedATM = atms[listATM.ShowInt()];
+
+            BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify ATM", "Delete ATM", "Refil ATM", "Back to menu");
+
+            switch (atmOptions.ShowInt())
+            {
+                default:
+                    break;
+                case 0:
+                    Console.WriteLine("YOU CAN PRESS ENTER FOR DEFAULT");
+                    ATM atm = CreateATM(atms, selectedATM.atm_id);
+                    await UpdateATM(atm);
+                    break;
+                case 1:
+                    await DeleteAtm(selectedATM);
+                    break;
+                case 2:
+                    int stock = GetIntInput("Enter new stock: ", selectedATM.stock);
+                    await UpdateATM(new ATM(selectedATM.atm_id, stock, selectedATM.address, selectedATM.error));
+                    break;
+
+
+            }
+        }
+
         public static string[] BranchToString(Branch[] branches)
         {
             string[] arr = new string[branches.Length];
@@ -278,6 +317,21 @@ namespace console_client
             for (int i = 0; i < branches.Length; i++)
             {
                 arr[i] = String.Format($"| {{0,{lId}}} | {{1,{lAddress}}} | {{2,{lOpenHours}}} | {{3,{lCloseHours}}} |", branches[i].branch_id, branches[i].address, branches[i].open_hours, branches[i].close_hours);
+            }
+            return arr;
+        }
+        public static string[] ATMToString(ATM[] atms)
+        {
+            string[] arr = new string[atms.Length];
+
+            int lId = atms.Max(x => x.atm_id.ToString().Length);
+            int lAddress = atms.Max(x => x.address.Length);
+            int lStock = atms.Max(x => x.stock.ToString().Length);
+
+
+            for (int i = 0; i < atms.Length; i++)
+            {
+                arr[i] = String.Format($"| {{0,{lId}}} | {{1,{lAddress}}} | {{2,{lStock}}} |", atms[i].atm_id, atms[i].address, atms[i].stock);
             }
             return arr;
         }
@@ -344,7 +398,7 @@ namespace console_client
 
         }
 
-        public static string GetStringBranchInput(string dialog, string defaultParameter)
+        public static string GetStringInput(string dialog, string defaultParameter)
         {
             Console.Write(dialog);
             string s = "";
@@ -356,19 +410,46 @@ namespace console_client
 
             return s;
         }
+        public static int GetIntInput(string dialog, int defaultParameter)
+        {
+            Console.Write(dialog);
+            int val;
+            string iS = Console.ReadLine();
+            bool parse = int.TryParse(iS, out val);
+            if (iS == "")
+                val = defaultParameter;
+            else if (!parse)
+            {
+                Console.WriteLine("[ ERROR ]: Error in parsing using default");
+                val = defaultParameter;
+            }
+                
+            return val;
+        }
 
         public static Branch CreateBranch(Branch[] branches, int id)
         {
 
             Branch selectedBranch = branches.SingleOrDefault(x => x.branch_id == id);
 
-            string address = GetStringBranchInput("address: ", selectedBranch.address);
-            string open_hours = GetStringBranchInput("format (HH:MM:SS)\nopen_hours: ", selectedBranch.open_hours);
-            string close_hours = GetStringBranchInput("format (HH:MM:SS)\nclose_hours: ", selectedBranch.close_hours);
+            string address = GetStringInput("address: ", selectedBranch.address);
+            string open_hours = GetStringInput("format (HH:MM:SS)\nopen_hours: ", selectedBranch.open_hours);
+            string close_hours = GetStringInput("format (HH:MM:SS)\nclose_hours: ", selectedBranch.close_hours);
 
             
 
             return new Branch(selectedBranch.branch_id, open_hours, close_hours, address);
+
+        }
+        public static ATM CreateATM(ATM[] atms, int id)
+        {
+
+            ATM selectedATM = atms.SingleOrDefault(x => x.atm_id == id);
+
+            int stock = GetIntInput("stock: ", selectedATM.stock);
+            string address = GetStringInput("address: ", selectedATM.address);
+
+            return new ATM(selectedATM.atm_id, stock, address, false);
 
         }
         public static async Task<Employe[]> GetEmployees()
@@ -439,6 +520,32 @@ namespace console_client
                 else
                 {
                     Console.WriteLine("FAILED TO CHANGE " + branch.address + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
+        static async Task UpdateATM(ATM atm)
+
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                HttpResponseMessage res = await client.PutAsJsonAsync($"atm/{atm.atm_id}?api_key={token}", atm);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("PUT " + atm.address + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("FAILED TO CHANGE " + atm.address + "\nPress ENTER to continue...");
                     Console.ReadLine();
                 }
 
@@ -631,7 +738,7 @@ namespace console_client
             }
         }
 
-        static async Task GetAtm()
+        public static async Task<ATM[]> GetATM()
         {
             using (var client = new HttpClient())
             {
@@ -640,25 +747,19 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync("atm?api_key=" + token);
+                HttpResponseMessage response = await client.GetAsync($"atm/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
 
-                    ATM[] atm = JsonSerializer.Deserialize<ATM[]>(json);
+                    ATM[] atms = JsonSerializer.Deserialize<ATM[]>(json);
 
-                    Console.WriteLine("RESULTS\n");
-
-                    for (int i = 0; i < atm.Length; i++)
-                    {
-                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error}");
-                    }
-                    Console.WriteLine("\nPress ENTER to continue...");
-                    Console.ReadLine();
+                    return atms;
 
                 }
             }
+            return null;
         }
 
 
@@ -690,26 +791,32 @@ namespace console_client
             }
         }
 
-        static async Task DeleteAtm()
+        static async Task DeleteAtm(ATM atm)
         {
-            Console.WriteLine("Listing ATMs");
-            await GetAtm();
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Console.Write("Enter ATM id to delete: ");
-                string atm_id = Console.ReadLine();
-
-                HttpResponseMessage res = await client.DeleteAsync($"atm/{atm_id}?api_key={token}");
-
-                if (res.IsSuccessStatusCode)
+                Console.WriteLine($"Type in 'yes' to confirm deletion of ATM at {atm.address}");
+                if(Console.ReadLine() == "yes")
                 {
-                    Console.WriteLine("Deleted " + atm_id + "\nPress ENTER to continue...");
-                    Console.ReadLine();
+
+                    HttpResponseMessage res = await client.DeleteAsync($"atm/{atm.atm_id}?api_key={token}");
+
+                    if (res.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Deleted " + atm.address);
+                    }
                 }
+                else
+                {
+                    Console.WriteLine($"ATM at {atm.address} wasn't deleted");
+                }
+                Console.WriteLine("Press any key to continue ...");
+                Console.ReadLine();
+
 
             }
         }
