@@ -13,8 +13,6 @@ info:
 tags:
   - name: ATM
     description: ATM machines
-  - name: User
-    description: Clients of bank
   - name: Employe
     description: Employes of bank
   - name: Branch
@@ -146,107 +144,6 @@ paths:
           description: Forbidden
         "404":
           description: ATM not found
-  
-  /user:
-    get:
-      tags:
-        - User
-      summary: Returns all users
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                 $ref: "#/components/schemas/Users"
-                 
-    post:
-      tags:
-        - User
-      summary: Creates user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-          
-    put:
-      tags:
-        - User
-      summary: Updates user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: Success
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-      
-                 
-  /user/{user_id}:
-    get:
-      tags:
-        - User
-      summary: Get user via ID
-      parameters:
-        - name: user_id
-          in: path
-          description: Identification of user
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                 $ref: "#/components/schemas/User"
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-        "404":
-          description: User not found
-      
-    delete:
-      tags:
-        - User
-      summary: Deletes user via ID
-      parameters:
-        - name: user_id
-          in: path
-          description: Identification of user
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: Success
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-        "404":
-          description: User not found
           
   /employe:
     get:
@@ -487,32 +384,6 @@ components:
         error_log:
           type: string
           example: "Windows update"
-    
-    Users:
-      type: array
-      items:
-        type: object
-        properties:
-          user_id:
-            type: integer
-            format: int64
-            example: 13
-          money:
-            type: integer
-            format: int64
-            example: 20000
-            
-    User:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          format: int64
-          example: 13
-        money:
-            type: integer
-            format: int64
-            example: 20000
             
     Employe:
       type: object
@@ -557,23 +428,6 @@ components:
           present:
             type: boolean
             example: false
-          
-    Branch:
-      type: object
-      properties:
-        branch_id:
-          type: integer
-          format: int64
-          example: 3
-        open_hours:
-          type: string
-          example: "06:00:00"
-        close_hours:
-          type: string
-          example: "23:00:00"
-        address:
-          type: string
-          example: "5253 Lankershim Blvd, North Hollywood, CA 91601, USA"
           
     BranchPut:
       type: object
