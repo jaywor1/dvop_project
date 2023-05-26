@@ -30,9 +30,9 @@ namespace console_client
                 int highlighted = 0;
 
 
-                del[] menuFuncs = new del[] { Atm, ManageEmpl, ManageBranches, Settings };
+                del[] menuFuncs = new del[] { Atm, ManageEmpl, ManageBranches, CreateEmplMenu, CreateBranchMenu, Settings };
 
-                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Manage Branches", "Settings" }, menuFuncs);
+                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "ATM", "Manage Employees", "Manage Branches", "Create employee", "Create branch", "Settings" }, menuFuncs);
 
                 while (true)
                 {
@@ -62,13 +62,13 @@ namespace console_client
 
         }
 
-        static async Task Empl()
-        {
-            del[] empl_funcs = new del[] { GetEmpl, Empl, DeleteEmpl, BackToMenu };
+        //static async Task Empl()
+        //{
+        //    del[] empl_funcs = new del[] { GetEmpl, Empl, DeleteEmpl, BackToMenu };
 
-            Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
-            menu.Show();
-        }
+        //    Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
+        //    menu.Show();
+        //}
 
         static async Task Settings()
         {
@@ -98,6 +98,35 @@ namespace console_client
             }
 
         }
+
+        static async Task CreateBranchMenu()
+        {
+            Console.Write("Address: ");
+            string address = Console.ReadLine();
+            Console.Write("Open hours (format HH:MM:SS): ");
+            string openHours = Console.ReadLine();
+            Console.Write("Close hours (format HH:MM:SS): ");
+            string closeHours = Console.ReadLine();
+
+            Branch branch = new Branch(0, openHours, closeHours, address);
+
+            await PutBranch(branch);
+            
+        }
+
+        static async Task CreateEmplMenu()
+        {
+            Console.Write("Full name: ");
+            string name = Console.ReadLine();
+            Console.Write("Position: ");
+            string position = Console.ReadLine();
+
+            Employe empl = new Employe(0, g_branch_id, name, position, true);
+
+            await PutEmpl(empl);
+        }
+
+        
 
         public static int GetBranch(string dialog)
         {
@@ -161,7 +190,7 @@ namespace console_client
 
             BasicMenu listEmpl = new BasicMenu("Employees", HIGHLIGHT_COLOR, DEFAULT_COLOR, names);
 
-            int selectedId = employes[listEmpl.ShowInt()].employe_id;
+            Employe selectedEmpl = employes[listEmpl.ShowInt()];
 
             BasicMenu emplOptions = new BasicMenu("Employee options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify employee", "Delete employee", "Back to menu");
 
@@ -171,8 +200,23 @@ namespace console_client
                     break;
                 case 0:
                     Console.WriteLine("YOU CAN PRESS ENTER FOR DEFAULT");
-                    Employe empl = CreateEmpl(employes, selectedId);
+                    Employe empl = CreateEmpl(employes, selectedEmpl.employe_id);
                     await UpdateEmpl(empl);
+                    break;
+                case 1:
+                    Console.WriteLine($"Do you want to delete {selectedEmpl.name}? (type 'yes' to confirm)");
+                    string s = Console.ReadLine();
+                    if(s == "yes")
+                    {
+                        DeleteEmpl(selectedEmpl);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Employee wasn't deleted\nPress any key to continue ...");
+                        Console.ReadKey();
+                    }
+                    break;
+                case 2:
                     break;
 
 
@@ -472,6 +516,26 @@ namespace console_client
             }
         }
 
+        static async Task PutBranch(Branch branch)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:3000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                HttpResponseMessage res = await client.PutAsJsonAsync("branch?api_key=" + token, branch);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("PUT " + branch.address + "\nPress ENTER to continue...");
+                    Console.ReadLine();
+                }
+
+            }
+        }
+
         static async Task UpdateEmpl(Employe employe)
         {
             int id = employe.employe_id;
@@ -502,7 +566,7 @@ namespace console_client
             }
         }
 
-        static async Task DeleteEmpl()
+        static async Task DeleteEmpl(Employe employe)
         {
             using (var client = new HttpClient())
             {
@@ -510,16 +574,15 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Console.Write("Enter employe ID: ");
-                string id = Console.ReadLine();
+                string id = employe.employe_id.ToString();
 
 
                 HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
-                    Console.ReadLine();
+                    Console.WriteLine("Deleted " + employe.name + "\nPress any key to continue...");
+                    Console.ReadKey();
 
                 }
 
