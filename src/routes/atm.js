@@ -22,7 +22,7 @@ router.put('/atm', express.json(), async (req, res) => {
 
     reqBody = req.body;
 
-    params = [reqBody.stock, reqBody.address, 'f']
+    params = [reqBody.stock, reqBody.address, 'f', reqBody.branch_id]
 
     for (par of params) {
         if (par == undefined)
@@ -30,7 +30,7 @@ router.put('/atm', express.json(), async (req, res) => {
     }
 
 
-    client.query('INSERT INTO atms (stock, address, error) VALUES ($1, $2, $3)', params, (err, result) => {
+    client.query('INSERT INTO atms (stock, address, error, branch_id) VALUES ($1, $2, $3, $4)', params, (err, result) => {
         if (err) {
             console.log(err.stack)
             client.release();
