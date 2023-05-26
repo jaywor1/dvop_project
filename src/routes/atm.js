@@ -65,6 +65,7 @@ router.put('/atm/:atm_id', checkAdmin, express.json(), async (req, res) => {
     client.query('UPDATE atms SET stock = $2, address = $3, error = $4 WHERE atm_id = $1', params, (err, result) => {
         if (err) {
             console.log(err.stack)
+            res.send(500).send("Server error");
             client.release();
         }
         else {
@@ -82,7 +83,7 @@ router.delete('/atm/:atm_id', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release()
-            return res.status(400).json("Invalid request")
+            return res.status(404).json("ATM not found")
         } else {
             client.release();
             return res.status(200).json("Success")
@@ -100,6 +101,7 @@ router.get('/atm/:branch_id', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(404).send("Branch not found")
         }
         else {
             res.status(200).json(result.rows)
@@ -121,37 +123,11 @@ router.post('/atm/refil', checkAdmin, express.json(), async (req, res) => {
         const result = await client.query('SELECT * FROM atms WHERE stock < $1', [reqBody.limit])
         res.status(200).send(result.rows)
     } finally {
+        res.status(500).send("Server error")
         client.release();
     }
 })
 
-router.patch('/atm/refil', checkAdmin, express.json(), async (req, res) => {
-    console.log("PATCH /atm/refil")
-
-    reqBody = req.body;
-
-    params = [req.body.atm_id, req.body.stock]
-
-    for (par of params) {
-        if (par == undefined)
-            return res.status(400).json("Invalid Request")
-    }
-
-    const client = await public.connect();
-
-    client.query('UPDATE atms SET stock = $2 WHERE atm_id = $1', params, (err, result) => {
-        if (err) {
-            console.log(err.stack)
-            client.release();
-        }
-        else {
-            res.status(200).send("Success")
-            client.release();
-        }
-    })
-
-
-})
 
 
 module.exports = router;

@@ -44,6 +44,7 @@ router.put('/branch', checkAdmin, express.json(), async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(500).send("Server error")
         }
         else {
             res.status(200).json("Success");
@@ -61,6 +62,15 @@ router.delete('/branch/:branch_id', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(500).send("Server error")
+        }
+    })
+
+    client.query('DELETE FROM atms WHERE branch_id = $1', [req.params.branch_id], (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+            res.status(500).send("Server error")
         }
     })
 
@@ -68,6 +78,7 @@ router.delete('/branch/:branch_id', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(404).send("Branch not found")
         }
         else {
             res.status(200).send("Success")
@@ -77,7 +88,7 @@ router.delete('/branch/:branch_id', checkAdmin, async (req, res) => {
 
 })
 
-router.put('/branch/:branch_id', express.json(), async (req, res) => {
+router.put('/branch/:branch_id', checkAdmin, express.json(), async (req, res) => {
     console.log("PUT /branch/" + req.params.branch_id)
 
     reqBody = req.body;

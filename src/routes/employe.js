@@ -19,6 +19,7 @@ router.get('/employe', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(500).send("Server error")
         }
         else {
             res.status(200).json(result.rows)
@@ -47,6 +48,7 @@ router.put('/employe', checkAdmin, express.json(), async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(500).send("Server error")
         }
         else {
             res.status(200).send("Success")
@@ -74,6 +76,7 @@ router.put('/employe/:employe_id', checkAdmin, express.json(), async (req, res) 
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(500).send("Server error")
         }
         else {
             res.status(200).send("Success")
@@ -108,6 +111,7 @@ router.delete('/employe/:employe_id', checkAdmin, async (req, res) => {
         if (err) {
             console.log(err.stack)
             client.release();
+            res.status(404).send("Employee not found")
         }
         else {
             res.status(200).send("Success")
