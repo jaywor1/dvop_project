@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace console_client
 {
-    // Love this class compared to that scumbag Menu
+    // Love this class compared to that <not_found> Menu
     internal class BasicMenu
     {
         public string name;
