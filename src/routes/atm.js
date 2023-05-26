@@ -18,6 +18,7 @@ router.get('/atm', checkAdmin, async (req, res) => {
         const result = await client.query('SELECT * FROM atms')
         res.status(200).json(result.rows)
     } finally {
+        res.status(500).send("Server error")
         client.release();
     }
 })
@@ -28,7 +29,7 @@ router.put('/atm', checkAdmin, express.json(), async (req, res) => {
 
     reqBody = req.body;
 
-    params = [reqBody.stock, reqBody.address, 'f', reqBody.branch_id]
+    params = [reqBody.stock, reqBody.address, reqBody.branch_id]
 
     for (par of params) {
         if (par == undefined)
@@ -36,7 +37,7 @@ router.put('/atm', checkAdmin, express.json(), async (req, res) => {
     }
 
 
-    client.query('INSERT INTO atms (stock, address, error, branch_id) VALUES ($1, $2, $3, $4)', params, (err, result) => {
+    client.query('INSERT INTO atms (stock, address, branch_id) VALUES ($1, $2, $3)', params, (err, result) => {
         if (err) {
             console.log(err.stack)
             client.release();
@@ -106,23 +107,6 @@ router.get('/atm/:branch_id', checkAdmin, async (req, res) => {
         }
     })
 
-})
-
-router.post('/atm/error', checkAdmin, express.json(), async (req, res) => {
-    console.log("POST /atm/error")
-
-    reqBody = req.body;
-
-    if (reqBody.error == undefined)
-        return res.status(400).json("Invalid request")
-
-    const client = await public.connect();
-    try {
-        const result = await client.query('SELECT * FROM atms WHERE error = $1', [reqBody.error])
-        res.status(200).json(result.rows)
-    } finally {
-        client.release();
-    }
 })
 
 router.post('/atm/refil', checkAdmin, express.json(), async (req, res) => {
