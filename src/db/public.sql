@@ -1,7 +1,6 @@
     DROP TABLE IF EXISTS atms CASCADE;
     DROP TABLE IF EXISTS branch CASCADE;
     DROP TABLE IF EXISTS employes CASCADE;
-    DROP TABLE IF EXISTS withdraws CASCADE;
 
 
     CREATE TABLE branch (
@@ -28,12 +27,6 @@
         name TEXT NOT NULL,
         position TEXT NOT NULL,
         present BOOLEAN NOT NULL
-    );
-
-    CREATE TABLE withdraws(
-        atm_id INT,
-        FOREIGN KEY (atm_id) REFERENCES atms (atm_id),
-        amount INT NOT NULL
     );
 
 
