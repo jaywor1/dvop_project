@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace console_client
 {
-    // WTF is this delegate
+    // <not_found> is this delegate
     public delegate Task del();
 
-    // Fuck this class fr better burn it when the time comes 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    // <not_found> this class fr better burn it when the time comes 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
     public class Menu
     {
         public string name;
