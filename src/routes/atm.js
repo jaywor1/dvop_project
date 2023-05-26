@@ -42,6 +42,31 @@ router.put('/atm', express.json(), async (req, res) => {
     })
 })
 
+router.put('/atm/:atm_id', express.json(), async (req, res) => {
+    console.log("PUT /atm/" + req.params.atm_id)
+    const client = await public.connect()
+
+    reqBody = req.body;
+
+    params = [req.params.atm_id, reqBody.stock, reqBody.address, 'f']
+
+    for (par of params) {
+        if (par == undefined)
+            return res.status(400).send("Invalid request")
+    }
+
+    client.query('UPDATE atms SET stock = $2, address = $3, error = $4 WHERE atm_id = $1', params, (err, result) => {
+        if (err) {
+            console.log(err.stack)
+            client.release();
+        }
+        else {
+            res.status(200).send("Success")
+            client.release();
+        }
+    })
+})
+
 router.delete('/atm/:atm_id', async (req, res) => {
     console.log("DELETE /atm/" + req.params.atm_id)
     const client = await public.connect();
@@ -60,11 +85,11 @@ router.delete('/atm/:atm_id', async (req, res) => {
 
 })
 
-router.get('/atm/:atm_id', async (req, res) => {
-    console.log("GET /atm/" + req.params.atm_id)
+router.get('/atm/:branch_id', async (req, res) => {
+    console.log("GET /atm/" + req.params.branch_id)
     const client = await public.connect();
 
-    client.query('SELECT * FROM atms WHERE atm_id = $1', [req.params.atm_id], (err, result) => {
+    client.query('SELECT * FROM atms WHERE branch_id = $1', [req.params.branch_id], (err, result) => {
         if (err) {
             console.log(err.stack)
             client.release();
