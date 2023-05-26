@@ -30,10 +30,11 @@ namespace console_client
                 int checkKeyVal = -2;
                 int highlighted = 0;
 
+                
 
-                del[] menuFuncs = new del[] { ManageATM, ManageEmpl, ManageBranches, CreateEmplMenu, CreateBranchMenu, Settings };
+                del[] menuFuncs = new del[] { ATMRefil, ManageATM, ManageEmpl, ManageBranches, CreateATMMenu, CreateEmplMenu, CreateBranchMenu, Settings };
 
-                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "Manage ATM", "Manage Employees", "Manage Branches", "Create employee", "Create branch", "Settings" }, menuFuncs);
+                Menu mainMenu = new Menu("Main Menu", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs to refil", "Manage ATMs", "Manage Employees", "Manage Branches", "Create ATM", "Create employee", "Create branch", "Settings" }, menuFuncs);
 
                 while (true)
                 {
@@ -50,26 +51,6 @@ namespace console_client
            
 
         }
-
-
-        //static async Task Atm()
-        //{
-        //    del[] atm_funcs = new del[] { GetAtm, PutAtm, PostAtmRefil, DeleteAtm, PatchAtmRefil, PostAtmError, BackToMenu };
-
-
-        //    Menu menu = new Menu("ATM", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List ATMs", "Create ATM", "List ATMs that need refil", "Delete ATM", "Change ATM stock", "List ATMs with errors", "Back to Main menu" }, atm_funcs);
-        //    menu.Show();
-
-
-        //}
-
-        //static async Task Empl()
-        //{
-        //    del[] empl_funcs = new del[] { GetEmpl, Empl, DeleteEmpl, BackToMenu };
-
-        //    Menu menu = new Menu("Employee", HIGHLIGHT_COLOR, DEFAULT_COLOR, new string[] { "List employes", "Create employe", "Delete employe", "Back to Main menu" }, empl_funcs);
-        //    menu.Show();
-        //}
 
         static async Task Settings()
         {
@@ -111,6 +92,58 @@ namespace console_client
             }
 
         }
+        static async Task ATMRefil()
+        {
+            ATM[] atms = await GetATM();
+            if (atms.Length == 0)
+            {
+                Console.WriteLine("This branch doesn't have any ATMs");
+                Console.WriteLine("Press any key to continue ...");
+                Console.ReadLine();
+                return;
+            }
+
+            ATM[] atmsRefil = new ATM[atms.Length];
+            int index = 0;
+            for (int i = 0; i < atms.Length; i++)
+            {
+                if (atms[i].stock <= g_limit)
+                {
+                    atmsRefil[index] = atms[i];
+                    index++;
+                }
+            }
+
+            if (atmsRefil[0] == null)
+            {
+                Console.WriteLine("This branch doesn't have any ATMs to refil");
+                Console.WriteLine("Press any key to continue ...");
+                Console.ReadLine();
+                return;
+            }
+
+
+            BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atmsRefil));
+
+            ATM selectedATM = atmsRefil[listATM.ShowInt()];
+
+            BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Refil ATM", "Back to menu");
+
+            switch (atmOptions.ShowInt())
+            {
+                default:
+                    break;
+                case 0:
+                    int stock = GetIntInput("Enter new stock: ", selectedATM.stock);
+                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address, selectedATM.error));
+                    break;
+                case 1:
+                    break;
+        
+
+
+            }
+        }
 
         static async Task CreateBranchMenu()
         {
@@ -126,6 +159,28 @@ namespace console_client
             await PutBranch(branch);
             
         }
+
+        static async Task CreateATMMenu()
+        {
+            Console.Write("Stock: ");
+            int stock;
+            bool parse = int.TryParse(Console.ReadLine(), out stock);
+            if (!parse)
+            {
+                Console.WriteLine("[ ERROR ]: Parse error quiting");
+                Console.WriteLine("Press any key to continue ...");
+                Console.ReadLine();
+            }
+
+            Console.Write("Address: ");
+            string address = Console.ReadLine();
+
+            ATM atm = new ATM(0, g_branch_id, stock, address, false);
+
+            await PutAtm(atm);
+
+        }
+
 
         static async Task CreateEmplMenu()
         {
@@ -322,7 +377,7 @@ namespace console_client
                     break;
                 case 2:
                     int stock = GetIntInput("Enter new stock: ", selectedATM.stock);
-                    await UpdateATM(new ATM(selectedATM.atm_id, stock, selectedATM.address, selectedATM.error));
+                    await UpdateATM(new ATM(selectedATM.atm_id, g_branch_id, stock, selectedATM.address, selectedATM.error));
                     break;
 
 
@@ -349,13 +404,27 @@ namespace console_client
         {
             string[] arr = new string[atms.Length];
 
-            int lId = atms.Max(x => x.atm_id.ToString().Length);
-            int lAddress = atms.Max(x => x.address.Length);
-            int lStock = atms.Max(x => x.stock.ToString().Length);
+            int lId = 0;
+            int lAddress = 0;
+            int lStock = 0;
+
+            foreach (var atm in atms)
+            {
+                if (atm == null)
+                    break;
+                if (atm.atm_id.ToString().Length > lId)
+                    lId = atm.atm_id.ToString().Length;
+                if (atm.address.Length > lAddress)
+                    lAddress = atm.address.Length;
+                if (atm.stock.ToString().Length > lStock)
+                    lStock = atm.stock.ToString().Length;
+            }
 
 
             for (int i = 0; i < atms.Length; i++)
             {
+                if (atms[i] == null)
+                    break;
                 arr[i] = String.Format($"| {{0,{lId}}} | {{1,{lAddress}}} | {{2,{lStock}}} |", atms[i].atm_id, atms[i].address, atms[i].stock);
             }
             return arr;
@@ -474,7 +543,7 @@ namespace console_client
             int stock = GetIntInput("stock: ", selectedATM.stock);
             string address = GetStringInput("address: ", selectedATM.address);
 
-            return new ATM(selectedATM.atm_id, stock, address, false);
+            return new ATM(selectedATM.atm_id, g_branch_id, stock, address, false);
 
         }
         public static async Task<Employe[]> GetEmployees()
@@ -576,49 +645,7 @@ namespace console_client
 
             }
         }
-        static async Task GetEmpl()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"employe/{g_branch_id}?api_key={token}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string json = await response.Content.ReadAsStringAsync();
-
-                    Employe[] employes = JsonSerializer.Deserialize<Employe[]>(json);
-
-                    Console.WriteLine("RESULTS\n");
-
-                    int lId = employes.Max(x => x.employe_id.ToString().Length);
-                    int lName = employes.Max(x => x.name.Length);
-                    int lPos = employes.Max(x => x.position.Length);
-                    int lBranch = employes.Max(x => x.branch_id.ToString().Length);
-
-
-                    ConsoleColor defaultCol = Console.ForegroundColor;
-                    for (int i = 0; i < employes.Length; i++)
-                    {
-                        if (employes[i].present)
-                            Console.ForegroundColor = ConsoleColor.Green;
-                        else
-                            Console.ForegroundColor = ConsoleColor.Red;
-                        String s = String.Format($"| {{0,{lId}}} | {{1,{lName}}} | {{2,{lPos}}} | {{3,{lBranch}}} |", employes[i].employe_id, employes[i].name, employes[i].position, employes[i].branch_id);
-                        Console.WriteLine(s);
-                    }
-                    Console.ForegroundColor = defaultCol;
-
-                    Console.WriteLine("\nPress ENTER to continue...");
-                    Console.ReadLine();
-
-                }
-            }
-        }
+     
         static async Task PutEmpl(Employe employe)
         {
             using (var client = new HttpClient())
@@ -626,15 +653,6 @@ namespace console_client
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                //Console.Write("Enter name: ");
-                //string name = Console.ReadLine();
-                //Console.Write("Enter branch ID: ");
-                //string branch_id = Console.ReadLine();
-                //Console.Write("Enter position: ");
-                //string position = Console.ReadLine();
-
-                //Employe employe = new Employe(int.Parse(branch_id), name, position);
 
 
                 HttpResponseMessage res = await client.PutAsJsonAsync("employe?api_key=" + token, employe);
@@ -676,15 +694,6 @@ namespace console_client
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                //Console.Write("Enter name: ");
-                //string name = Console.ReadLine();
-                //Console.Write("Enter branch ID: ");
-                //string branch_id = Console.ReadLine();
-                //Console.Write("Enter position: ");
-                //string position = Console.ReadLine();
-
-                //Employe employe = new Employe(int.Parse(branch_id), name, position);
 
 
                 HttpResponseMessage res = await client.PutAsJsonAsync($"employe/{id}?api_key={token}", employe);
@@ -741,27 +750,6 @@ namespace console_client
             }
         }
 
-        static async Task MoveEmpl()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.Write("Enter employe ID: ");
-                string id = Console.ReadLine();
-
-                HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
-
-                if (res.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Deleted " + id + "\nPress ENTER to continue...");
-                    Console.ReadLine();
-                }
-
-            }
-        }
 
         public static async Task<ATM[]> GetATM()
         {
@@ -790,20 +778,13 @@ namespace console_client
 
 
 
-        static async Task PutAtm()
+        static async Task PutAtm(ATM atm)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("http://localhost:3000/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.Write("Enter stock: ");
-                int stock = int.Parse(Console.ReadLine());
-                Console.Write("Enter address: ");
-                string address = Console.ReadLine();
-
-                ATM atm = new ATM(0, stock, address, false);
 
                 HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key=" + token, atm);
 
@@ -846,156 +827,5 @@ namespace console_client
             }
         }
 
-        static async Task PostAtmRefil()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.Write("Limit: ");
-                string limit = Console.ReadLine();
-
-                Console.WriteLine("POST");
-
-                var content = new StringContent(JsonSerializer.Serialize(new { limit = limit }), Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PostAsync("atm/refil?api_key=" + token, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string json = await response.Content.ReadAsStringAsync();
-
-                    ATM[] atm = JsonSerializer.Deserialize<ATM[]>(json);
-
-                    Console.WriteLine("RESULTS\n");
-
-                    for (int i = 0; i < atm.Length; i++)
-                    {
-                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error} | {atm[i].address}");
-                    }
-                    Console.WriteLine("\nPress ENTER to continue...");
-                    Console.ReadLine();
-
-                }
-                else
-                {
-                    Console.WriteLine("ERROR");
-                    Console.ReadLine();
-                }
-
-            }
-        }
-
-        static async Task PostAtmError()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.Write("Error: ");
-                string error = Console.ReadLine();
-
-                Console.WriteLine("POST");
-
-                var content = new StringContent(JsonSerializer.Serialize(new { error = error }), Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PostAsync("atm/error?api_key=" + token, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string json = await response.Content.ReadAsStringAsync();
-
-                    ATM[] atm = JsonSerializer.Deserialize<ATM[]>(json);
-
-                    Console.WriteLine("RESULTS\n");
-
-                    for (int i = 0; i < atm.Length; i++)
-                    {
-                        Console.WriteLine($"{atm[i].atm_id} | {atm[i].stock}  | {atm[i].error} | {atm[i].address}");
-                    }
-                    Console.WriteLine("\nPress ENTER to continue...");
-                    Console.ReadLine();
-
-                }
-                else
-                {
-                    Console.WriteLine("ERROR");
-                    Console.ReadLine();
-                }
-
-            }
-        }
-
-        static async Task PatchAtmRefil()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                Console.Write("ATM ID: ");
-                string atm_id = Console.ReadLine();
-                Console.Write("New stock: ");
-                string stock = Console.ReadLine();
-
-
-                Console.WriteLine("PATCH");
-
-                var content = new StringContent(JsonSerializer.Serialize(new { atm_id = atm_id, stock = stock }), Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PatchAsync("atm/refil?api_key=" + token, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string json = await response.Content.ReadAsStringAsync();
-
-
-                    Console.WriteLine("RESULTS\n");
-
-                    Console.WriteLine(json);
-
-                    Console.WriteLine("\nPress ENTER to continue...");
-                    Console.ReadLine();
-
-                }
-                else
-                {
-                    Console.WriteLine("ERROR");
-                    Console.ReadLine();
-                }
-
-            }
-        }
-
-        public static int checkKey(ConsoleKeyInfo cki)
-        {
-            switch (cki.Key)
-            {
-                case ConsoleKey.DownArrow:
-                case ConsoleKey.S:
-                    return 1;
-                case ConsoleKey.UpArrow:
-                case ConsoleKey.W:
-                    return -1;
-                case ConsoleKey.Enter:
-                case ConsoleKey.Spacebar:
-                    return 0;
-                default:
-                    return -2;
-            }
-        }
-
-
-
-
-        static async Task BackToMenu()
-        {
-
-        }
     }
 }
