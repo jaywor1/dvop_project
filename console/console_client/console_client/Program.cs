@@ -57,7 +57,7 @@ namespace console_client
         {
             BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Set token", "Back to Main menu");
 
-            int selected = settingsMenu.ShowInt(true);
+            int selected = settingsMenu.ShowInt(false);
 
             switch (selected)
             {
