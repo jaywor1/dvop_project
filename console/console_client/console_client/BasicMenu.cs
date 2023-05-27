@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace console_client
 {
-    // Love this class compared to that scumbag Menu
+    // Love this class compared to that <not_found> Menu
     internal class BasicMenu
     {
         public string name;
@@ -21,11 +21,26 @@ namespace console_client
             this.defaultCol = defaultCol;
             this.options = options;
         }
-        public int ShowInt()
+        public int ShowInt(bool backToMenu)
         {
             // Simplicity I seek and I find in you <3
             int highlighted = 0;
             int checkKeyVal = -2;
+
+            if (backToMenu)
+            {
+                string[] arr = new string[options.Length + 1];
+                for (int i = 0; i < options.Length; i++)
+                {
+                    arr[i] = options[i];
+                }
+                arr[options.Length] = "Back to menu";
+                options = new string[options.Length + 1];
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    options[i] = arr[i];
+                }
+            }
 
             while (true)
             {
@@ -44,6 +59,7 @@ namespace console_client
                         Console.WriteLine(options[i]);
                     }
                 }
+              
 
                 checkKeyVal = checkKey(Console.ReadKey());
 

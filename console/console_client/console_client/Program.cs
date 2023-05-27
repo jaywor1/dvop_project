@@ -20,7 +20,8 @@ namespace console_client
 
         public static int g_branch_id = 1;
         public static int g_limit = 20000;
-        public static string token = "414e1f8735fc1b861a890dc790ede63ee357fd9845439a235a195191e79626d7";
+        public static string token = "";
+        public static string api_path = "/api/v1/";
         static void Main(string[] args)
         {
             if (LoadData(SAVE_FILE))
@@ -30,7 +31,7 @@ namespace console_client
                 int checkKeyVal = -2;
                 int highlighted = 0;
 
-                
+
 
                 del[] menuFuncs = new del[] { ATMRefil, ManageATM, ManageEmpl, ManageBranches, CreateATMMenu, CreateEmplMenu, CreateBranchMenu, Settings };
 
@@ -48,7 +49,7 @@ namespace console_client
                 Console.ReadLine();
             }
 
-           
+
 
         }
 
@@ -56,7 +57,7 @@ namespace console_client
         {
             BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Set token", "Back to Main menu");
 
-            int selected = settingsMenu.ShowInt();
+            int selected = settingsMenu.ShowInt(true);
 
             switch (selected)
             {
@@ -72,7 +73,7 @@ namespace console_client
                         Console.WriteLine("Press key to continue ...");
                         Console.ReadKey();
                     }
-                        
+
                     break;
                 case 1:
                     Console.Write("Enter new limit: ");
@@ -107,8 +108,16 @@ namespace console_client
                 Console.ReadLine();
                 return;
             }
+            int size = 0;
+            for (int i = 0; i < atms.Length; i++)
+            {
+                if (atms[i].stock <= g_limit)
+                {
+                    size++;
+                }
+            }
 
-            ATM[] atmsRefil = new ATM[atms.Length];
+            ATM[] atmsRefil = new ATM[size];
             int index = 0;
             for (int i = 0; i < atms.Length; i++)
             {
@@ -119,7 +128,7 @@ namespace console_client
                 }
             }
 
-            if (atmsRefil[0] == null)
+            if (size == 0)
             {
                 Console.WriteLine("This branch doesn't have any ATMs to refil");
                 Console.WriteLine("Press any key to continue ...");
@@ -130,11 +139,11 @@ namespace console_client
 
             BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atmsRefil));
 
-            ATM selectedATM = atmsRefil[listATM.ShowInt()];
+            ATM selectedATM = atmsRefil[listATM.ShowInt(true)];
 
             BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Refil ATM", "Back to menu");
 
-            switch (atmOptions.ShowInt())
+            switch (atmOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -144,7 +153,7 @@ namespace console_client
                     break;
                 case 1:
                     break;
-        
+
 
 
             }
@@ -162,7 +171,7 @@ namespace console_client
             Branch branch = new Branch(0, openHours, closeHours, address);
 
             await PutBranch(branch);
-            
+
         }
 
         static async Task CreateATMMenu()
@@ -199,7 +208,7 @@ namespace console_client
             await PutEmpl(empl);
         }
 
-        
+
 
         public static int GetBranch(string dialog)
         {
@@ -213,14 +222,14 @@ namespace console_client
 
             return branch_id;
         }
-       
+
         public static bool SaveData(string dirPath, string savePath)
         {
             try
             {
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
-                
+
 
                 using (StreamWriter sw = new StreamWriter(savePath, false))
                 {
@@ -240,28 +249,37 @@ namespace console_client
 
         public static bool LoadData(string saveFile)
         {
-            string[] lines = File.ReadAllLines(saveFile);
+            try
+            {
+                string[] lines = File.ReadAllLines(saveFile);
 
-            if(lines.Length != 3)
+                if (lines.Length != 3)
+                {
+                    SaveData(SAVE_PATH, SAVE_FILE);
+                    return true;
+                }
+
+                // Parsing branch_id
+                bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out g_branch_id);
+
+                if (!parse)
+                    return false;
+
+                parse = int.TryParse(lines[1].Substring("limit:".Length), out g_limit);
+
+                if (!parse)
+                    return false;
+
+                token = lines[2].Substring("token:".Length);
+
+                return true;
+
+            }
+            catch
             {
                 SaveData(SAVE_PATH, SAVE_FILE);
                 return true;
             }
-
-            // Parsing branch_id
-            bool parse = int.TryParse(lines[0].Substring("branch_id:".Length), out g_branch_id);
-
-            if (!parse)
-                return false;
-
-            parse = int.TryParse(lines[1].Substring("limit:".Length), out g_limit);
-
-            if (!parse)
-                return false;
-
-            token = lines[2].Substring("token:".Length);
-
-            return true;
 
         }
 
@@ -273,16 +291,21 @@ namespace console_client
             string[] names = new string[employes.Length];
             for (int i = 0; i < names.Length; i++)
             {
-                names[i] = employes[i].name + ", " + employes[i].position;
+                string msg = "";
+                if (employes[i].present)
+                    msg = "Present";
+                else
+                    msg = "Away";
+                names[i] = employes[i].name + ", " + employes[i].position + ", " + msg;
             }
 
             BasicMenu listEmpl = new BasicMenu("Employees", HIGHLIGHT_COLOR, DEFAULT_COLOR, names);
 
-            Employe selectedEmpl = employes[listEmpl.ShowInt()];
+            Employe selectedEmpl = employes[listEmpl.ShowInt(true)];
 
             BasicMenu emplOptions = new BasicMenu("Employee options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify employee", "Delete employee", "Back to menu");
 
-            switch (emplOptions.ShowInt())
+            switch (emplOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -294,7 +317,7 @@ namespace console_client
                 case 1:
                     Console.WriteLine($"Do you want to delete {selectedEmpl.name}? (type 'yes' to confirm)");
                     string s = Console.ReadLine();
-                    if(s == "yes")
+                    if (s == "yes")
                     {
                         DeleteEmpl(selectedEmpl);
                     }
@@ -319,11 +342,11 @@ namespace console_client
 
             BasicMenu listBranch = new BasicMenu("Branches", HIGHLIGHT_COLOR, DEFAULT_COLOR, BranchToString(branches));
 
-            Branch selectedBranch = branches[listBranch.ShowInt()];
+            Branch selectedBranch = branches[listBranch.ShowInt(true)];
 
             BasicMenu branchOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify branch", "Delete branch", "Back to menu");
 
-            switch (branchOptions.ShowInt())
+            switch (branchOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -357,7 +380,7 @@ namespace console_client
         {
             ATM[] atms = await GetATM();
 
-            if(atms.Length == 0)
+            if (atms.Length == 0)
             {
                 Console.WriteLine("This branch doesn't have any ATMs");
                 Console.WriteLine("Press any key to continue ...");
@@ -367,11 +390,11 @@ namespace console_client
 
             BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atms));
 
-            ATM selectedATM = atms[listATM.ShowInt()];
+            ATM selectedATM = atms[listATM.ShowInt(true)];
 
             BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify ATM", "Delete ATM", "Refil ATM", "Back to menu");
 
-            switch (atmOptions.ShowInt())
+            switch (atmOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -440,7 +463,7 @@ namespace console_client
 
         public static Employe CreateEmpl(Employe[] employes, int id)
         {
-            Console.Write("branch_id:");
+            Console.Write("branch_id: ");
 
             int branch_id;
             string iBranch = Console.ReadLine();
@@ -457,7 +480,7 @@ namespace console_client
 
             }
 
-            Console.Write("name:");
+            Console.Write("name: ");
             string name = "";
             string iName = Console.ReadLine();
             if (iName == "")
@@ -465,7 +488,7 @@ namespace console_client
             else
                 name = iName;
 
-            Console.Write("position:");
+            Console.Write("position: ");
             string position = "";
             string iPosition = Console.ReadLine();
             if (iPosition == "")
@@ -480,11 +503,11 @@ namespace console_client
                 present = employes.SingleOrDefault(x => x.employe_id == id).present;
             else
             {
-                if(iPresent == "y")
+                if (iPresent == "y")
                 {
                     present = true;
                 }
-                else if(iPresent == "n")
+                else if (iPresent == "n")
                 {
                     present = false;
                 }
@@ -493,7 +516,7 @@ namespace console_client
                     Console.WriteLine("[ ERROR ]: User is dumbass");
                     Employe empl = CreateEmpl(employes, id);
                 }
-               
+
             }
 
             return new Employe(employes.SingleOrDefault(x => x.employe_id == id).employe_id, branch_id, name, position, present);
@@ -525,7 +548,7 @@ namespace console_client
                 Console.WriteLine("[ ERROR ]: Error in parsing using default");
                 val = defaultParameter;
             }
-                
+
             return val;
         }
 
@@ -538,7 +561,7 @@ namespace console_client
             string open_hours = GetStringInput("format (HH:MM:SS)\nopen_hours: ", selectedBranch.open_hours);
             string close_hours = GetStringInput("format (HH:MM:SS)\nclose_hours: ", selectedBranch.close_hours);
 
-            
+
 
             return new Branch(selectedBranch.branch_id, open_hours, close_hours, address);
 
@@ -563,7 +586,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"employe/{g_branch_id}?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}employe/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -587,7 +610,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"branch/?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}branch/?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -603,7 +626,7 @@ namespace console_client
         }
 
         static async Task UpdateBranch(Branch branch)
-        
+
         {
             using (var client = new HttpClient())
             {
@@ -612,7 +635,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"branch/{branch.branch_id}?api_key={token}", branch);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}branch/{branch.branch_id}?api_key={token}", branch);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -638,7 +661,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"atm/{atm.atm_id}?api_key={token}", atm);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}atm/{atm.atm_id}?api_key={token}", atm);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -653,7 +676,7 @@ namespace console_client
 
             }
         }
-     
+
         static async Task PutEmpl(Employe employe)
         {
             using (var client = new HttpClient())
@@ -663,8 +686,8 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("employe?api_key=" + token, employe);
-               
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}employe?api_key=" + token, employe);
+
                 if (res.IsSuccessStatusCode)
                 {
                     Console.WriteLine("PUT " + employe.name + "\nPress ENTER to continue...");
@@ -683,7 +706,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("branch?api_key=" + token, branch);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}branch?api_key=" + token, branch);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -704,7 +727,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage res = await client.PutAsJsonAsync($"employe/{id}?api_key={token}", employe);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}employe/{id}?api_key={token}", employe);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -726,7 +749,7 @@ namespace console_client
                 string id = employe.employe_id.ToString();
 
 
-                HttpResponseMessage res = await client.DeleteAsync($"employe/{id}?api_key={token}");
+                HttpResponseMessage res = await client.DeleteAsync($"{api_path}employe/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -746,7 +769,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage res = await client.DeleteAsync($"branch/{id}?api_key={token}");
+                HttpResponseMessage res = await client.DeleteAsync($"{api_path}branch/{id}?api_key={token}");
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -768,7 +791,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine("GET");
-                HttpResponseMessage response = await client.GetAsync($"atm/{g_branch_id}?api_key={token}");
+                HttpResponseMessage response = await client.GetAsync($"{api_path}atm/{g_branch_id}?api_key={token}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -794,7 +817,7 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage res = await client.PutAsJsonAsync("atm?api_key=" + token, atm);
+                HttpResponseMessage res = await client.PutAsJsonAsync($"{api_path}atm?api_key={token}", atm);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -814,10 +837,10 @@ namespace console_client
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 Console.WriteLine($"Type in 'yes' to confirm deletion of ATM at {atm.address}");
-                if(Console.ReadLine() == "yes")
+                if (Console.ReadLine() == "yes")
                 {
 
-                    HttpResponseMessage res = await client.DeleteAsync($"atm/{atm.atm_id}?api_key={token}");
+                    HttpResponseMessage res = await client.DeleteAsync($"{api_path}atm/{atm.atm_id}?api_key={token}");
 
                     if (res.IsSuccessStatusCode)
                     {

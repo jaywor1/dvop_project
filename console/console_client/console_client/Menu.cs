@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace console_client
 {
+    // <not_found> is this delegate
     public delegate Task del();
+
+    // <not_found> this class fr better burn it when the time comes 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
     public class Menu
     {
         public string name;
@@ -80,6 +83,63 @@ namespace console_client
 
         }
 
+        public int ShowInt()
+        {
+            int highlighted = 0;
+            int checkKeyVal = -2;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"-------------- {name} --------------");
+                for (int i = 0; i < options.Length; i++)
+                {
+                    if (i == highlighted)
+                    {
+                        Console.ForegroundColor = highlightCol;
+                        Console.WriteLine($"--> {options[i]}");
+                        Console.ForegroundColor = defaultCol;
+                    }
+                    else
+                    {
+                        Console.WriteLine(options[i]);
+                    }
+                }
+
+                checkKeyVal = checkKey(Console.ReadKey());
+
+                if (checkKeyVal == 0)
+                {
+                    break;
+                }
+                else if (checkKeyVal == -2)
+                {
+                    continue;
+                }
+                else
+                {
+                    if (highlighted + checkKeyVal < 0 || highlighted + checkKeyVal >= options.Length)
+                    {
+                        continue;
+                    }
+                    highlighted += checkKeyVal;
+                }
+            }
+
+            Console.Clear();
+
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                if (i == highlighted)
+                {
+                    return i;
+                    break;
+                }
+            }
+
+            return -1;
+        }
+
         private async Task Fix(Task t)
         {
             t.Wait();
@@ -101,5 +161,7 @@ namespace console_client
                     return -2;
             }
         }
+
+
     }
 }

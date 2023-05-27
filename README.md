@@ -1,7 +1,7 @@
 # dvop_project
 Please let me pass this subject :))
 
-### [Docs](/docs/docs.yml)
+### [Docs](/docs/docs.yml) in [swagger](https://editor.swagger.io/)
 
 ## DBs
 

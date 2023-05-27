@@ -48,9 +48,9 @@ const apiKeyAuth = async (req, res, next) => {
 
 
 
-app.use('/', apiKeyAuth, atm_route)
-app.use('/', apiKeyAuth, branch_route)
-app.use('/', apiKeyAuth, employe_route)
+app.use('/api/v1/', apiKeyAuth, atm_route)
+app.use('/api/v1/', apiKeyAuth, branch_route)
+app.use('/api/v1/', apiKeyAuth, employe_route)
 
 
 app.listen(EXPRESS_PORT, () => {

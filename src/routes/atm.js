@@ -55,14 +55,14 @@ router.put('/atm/:atm_id', checkAdmin, express.json(), async (req, res) => {
 
     reqBody = req.body;
 
-    params = [req.params.atm_id, reqBody.stock, reqBody.address, 'f']
+    params = [req.params.atm_id, reqBody.stock, reqBody.address]
 
     for (par of params) {
         if (par == undefined)
             return res.status(400).send("Invalid request")
     }
 
-    client.query('UPDATE atms SET stock = $2, address = $3, error = $4 WHERE atm_id = $1', params, (err, result) => {
+    client.query('UPDATE atms SET stock = $2, address = $3 WHERE atm_id = $1', params, (err, result) => {
         if (err) {
             console.log(err.stack)
             res.send(500).send("Server error");
