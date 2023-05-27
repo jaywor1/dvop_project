@@ -26,6 +26,7 @@ router.get('/atm', checkAdmin, async (req, res) => {
     }
     catch {
         console.log("F")
+        client.release();
     }
 })
 
