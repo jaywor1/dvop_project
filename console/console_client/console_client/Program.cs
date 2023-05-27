@@ -57,7 +57,7 @@ namespace console_client
         {
             BasicMenu settingsMenu = new BasicMenu("Settings", HIGHLIGHT_COLOR, DEFAULT_COLOR, $"Set branch id (current branch_id: {g_branch_id})", $"Set limit (current limit: {g_limit})", "Set token", "Back to Main menu");
 
-            int selected = settingsMenu.ShowInt();
+            int selected = settingsMenu.ShowInt(true);
 
             switch (selected)
             {
@@ -139,11 +139,11 @@ namespace console_client
 
             BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atmsRefil));
 
-            ATM selectedATM = atmsRefil[listATM.ShowInt()];
+            ATM selectedATM = atmsRefil[listATM.ShowInt(true)];
 
             BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Refil ATM", "Back to menu");
 
-            switch (atmOptions.ShowInt())
+            switch (atmOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -291,16 +291,21 @@ namespace console_client
             string[] names = new string[employes.Length];
             for (int i = 0; i < names.Length; i++)
             {
-                names[i] = employes[i].name + ", " + employes[i].position;
+                string msg = "";
+                if (employes[i].present)
+                    msg = "Present";
+                else
+                    msg = "Away";
+                names[i] = employes[i].name + ", " + employes[i].position + ", " + msg;
             }
 
             BasicMenu listEmpl = new BasicMenu("Employees", HIGHLIGHT_COLOR, DEFAULT_COLOR, names);
 
-            Employe selectedEmpl = employes[listEmpl.ShowInt()];
+            Employe selectedEmpl = employes[listEmpl.ShowInt(true)];
 
             BasicMenu emplOptions = new BasicMenu("Employee options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify employee", "Delete employee", "Back to menu");
 
-            switch (emplOptions.ShowInt())
+            switch (emplOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -337,11 +342,11 @@ namespace console_client
 
             BasicMenu listBranch = new BasicMenu("Branches", HIGHLIGHT_COLOR, DEFAULT_COLOR, BranchToString(branches));
 
-            Branch selectedBranch = branches[listBranch.ShowInt()];
+            Branch selectedBranch = branches[listBranch.ShowInt(true)];
 
             BasicMenu branchOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify branch", "Delete branch", "Back to menu");
 
-            switch (branchOptions.ShowInt())
+            switch (branchOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -385,11 +390,11 @@ namespace console_client
 
             BasicMenu listATM = new BasicMenu("ATMs", HIGHLIGHT_COLOR, DEFAULT_COLOR, ATMToString(atms));
 
-            ATM selectedATM = atms[listATM.ShowInt()];
+            ATM selectedATM = atms[listATM.ShowInt(true)];
 
             BasicMenu atmOptions = new BasicMenu("Branch options", HIGHLIGHT_COLOR, DEFAULT_COLOR, "Modify ATM", "Delete ATM", "Refil ATM", "Back to menu");
 
-            switch (atmOptions.ShowInt())
+            switch (atmOptions.ShowInt(false))
             {
                 default:
                     break;
@@ -458,7 +463,7 @@ namespace console_client
 
         public static Employe CreateEmpl(Employe[] employes, int id)
         {
-            Console.Write("branch_id:");
+            Console.Write("branch_id: ");
 
             int branch_id;
             string iBranch = Console.ReadLine();
@@ -475,7 +480,7 @@ namespace console_client
 
             }
 
-            Console.Write("name:");
+            Console.Write("name: ");
             string name = "";
             string iName = Console.ReadLine();
             if (iName == "")
@@ -483,7 +488,7 @@ namespace console_client
             else
                 name = iName;
 
-            Console.Write("position:");
+            Console.Write("position: ");
             string position = "";
             string iPosition = Console.ReadLine();
             if (iPosition == "")
