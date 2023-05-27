@@ -40,7 +40,7 @@
 		
 		INSERT INTO atms (branch_id, stock, address)
     VALUES
-        (1, 20000, 'Test 1'),(1, 21000, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(1, 20940, 'Test 1'),(3, 15000, 'Test 2'),(1, 17500, 'Test 34');
+        (1, 20000, 'Test 1'),(1, 21000, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(2, 23400, 'Test 1'),(1, 20940, 'Test 1'),(3, 15000, 'Test 2'),(1, 17500, 'Test 34'),(2, 23400, 'Test 1'),(2, 4110, 'Test 1'),(2, 7100, 'Test 1'),(2, 700, 'Test 1'),(2, 100, 'Test 1'),(2, 23400, 'Test 4');
 
     INSERT INTO employes (branch_id, name, position, present)
         VALUES
@@ -50,5 +50,11 @@
         (2, 'Brian Welch', 'IT support', 't'),
         (1, 'Ray Luzier', 'accountant', 'f'),
         (2, 'Eric Whitney', 'director', 'f'),
+        (2, 'Lars Urlich', 'cleaner', 't'),
+        (2, 'Jason Newsted', 'manager', 'f'),
+        (2, 'Kirk Hammett', 'HR', 't'),
+        (2, 'James Hetfield', 'accountant', 't'),
+        (2, 'Dave Mustaine', 'accountant', 'f'),
+        (2, 'Robert Trujillo', 'IT support', 't'),
         (1, 'Corey Taylor', 'director', 't')
     ;
