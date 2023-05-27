@@ -13,13 +13,19 @@ const checkAdmin = (req, res, next) => {
 
 router.get('/atm', checkAdmin, async (req, res) => {
     console.log("GET /atm")
-    const client = await public.connect();
     try {
-        const result = await client.query('SELECT * FROM atms')
-        res.status(200).json(result.rows)
-    } finally {
-        res.status(500).send("Server error")
-        client.release();
+        const client = await public.connect();
+        try {
+            const result = await client.query('SELECT * FROM atms')
+            res.status(200).json(result.rows)
+            client.release();
+        } finally {
+            res.status(500).send("Server error")
+            client.release();
+        }
+    }
+    catch {
+        console.log("F")
     }
 })
 
